@@ -24,7 +24,7 @@ The Django framework is used both to create the server for the website and to ma
 
 React is used to build the frontend of the website.
 
-A sqlite database is used store data.
+A sqlite database is used to store data.
 
 ## Build Instructions
 
