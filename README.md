@@ -34,7 +34,7 @@ A sqlite database is used to store data.
 4. Install the project dependencies: ```$ pip install -r requirements.txt```
 5. Set up the database: ```$ python manage.py migrate```
 6. Create an admin account: ```$ python manage.py createsuperuser```
-7. Migrate again: ```$ python manage.py migrate``` TODO: Is this step needed?
+7. Migrate again: ```$ python manage.py migrate```
 8. Start the development server: ```$ python manage.py runserver```
 
 ## Unit Testing Instructions
