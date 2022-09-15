@@ -4,7 +4,7 @@ This website manages orders for Dan's Frappuccino Paradise by allowing customers
 
 ## Workspace Layout
 
-The Frappuccino Paradise website repository is be managed using GitHub.
+The Frappuccino Paradise website repository is managed using GitHub.
 
 The source code of the project can be found in the 'app/' directory.
 
