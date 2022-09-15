@@ -39,8 +39,16 @@ A sqlite database is used to store data.
 
 ## Unit Testing Instructions
 
-TODO: Add unit testing instructions
+The unit tests for the website can be run using the following command in the root directory of the project: ```$ ./manage.py test```.
+
+More information on running unit tests in Django can be found at the following website: https://docs.djangoproject.com/en/4.1/topics/testing/overview/
 
 ## System Testing Instructions
 
-TODO: Add system testing instructions
+The first step for system testing is to build the project and start a development server using the instructions found under the header "Build Instructions" of this document. Once the development server is running, use a web browser to navigate to the address ```localhost:8000```. 
+
+Customer views and actions can be tested using the credentials Username: customerTest, Password: customerTest.
+
+Barista views and actions can be tested using the credentials Username: baristaTest, Password: baristaTest.
+
+By default, the manager's credentials are Username: manager, Password: manager.
