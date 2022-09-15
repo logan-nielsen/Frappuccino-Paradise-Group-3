@@ -47,8 +47,8 @@ More information on running unit tests in Django can be found at the following w
 
 The first step for system testing is to build the project and start a development server using the instructions found under the header "Build Instructions" of this document. Once the development server is running, use a web browser to navigate to the address ```localhost:8000```. 
 
-Customer views and actions can be tested using the credentials Username: customerTest, Password: customerTest.
+Customer role can be tested using a test account the credentials Username: customerTest and Password: customerTest.
 
-Barista views and actions can be tested using the credentials Username: baristaTest, Password: baristaTest.
+Barista role can be tested using a test account the credentials Username: baristaTest and Password: baristaTest.
 
-By default, the manager's credentials are Username: manager, Password: manager.
+The manager role can only be tested using the main manager account. This can be accessed using the manager's default credentials, which are Username: manager and Password: manager.
