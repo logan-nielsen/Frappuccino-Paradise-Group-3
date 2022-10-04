@@ -15,7 +15,7 @@ import os
 import json
 
 # Get secrets
-with open('/tutorials/secrets.json') as f:
+with open('secrets.json') as f:
     SECRETS = json.load(f)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

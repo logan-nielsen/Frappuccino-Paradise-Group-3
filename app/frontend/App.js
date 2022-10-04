@@ -11,7 +11,7 @@ import {
       <Router>
         <p>Add nav component</p>
         <Routes>
-          <Route path="/" element={<p>Add home component</p>} />
+          <Route path="app/" element={<p>Add home component</p>} />
         </Routes>
       </Router>
       </>
