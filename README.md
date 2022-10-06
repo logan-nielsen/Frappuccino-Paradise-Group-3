@@ -29,13 +29,13 @@ A sqlite database is used to store data.
 ## Build Instructions
 
 1. Clone the GitHub repository located at 'https://github.com/logan-nielsen/Frappuccino-Paradise-Group-3'
-2. Install the virtualenv python package: ```$ pip install virtualenv```
-3. Create and start a virtual environment: ```$ python -m virtualenv --no-site-packages```
-4. Install the project dependencies: ```$ pip install -r requirements.txt```
-5. Set up the database: ```$ python manage.py migrate```
-6. Create an admin account: ```$ python manage.py createsuperuser```
-7. Migrate again: ```$ python manage.py migrate```
-8. Start the development server: ```$ python manage.py runserver```
+2. Navigate to the app/ directory
+3. Install the project dependencies: ```$ pip install -r requirements.txt```
+4. Set up the database: ```$ python manage.py migrate```
+5. Create an admin account: ```$ python manage.py createsuperuser```
+6. Migrate again: ```$ python manage.py migrate```
+7. Start webpack builds: ```$ npm run dev```
+8. In another terminal window, start the development server: ```$ python manage.py runserver```
 
 ## Unit Testing Instructions
 
