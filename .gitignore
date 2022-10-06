@@ -1,0 +1,12 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+secrets.json
+
+# Node and Webpack #
+node_modules
+static
