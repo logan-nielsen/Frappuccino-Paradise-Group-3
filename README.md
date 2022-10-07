@@ -31,11 +31,12 @@ A sqlite database is used to store data.
 1. Clone the GitHub repository located at 'https://github.com/logan-nielsen/Frappuccino-Paradise-Group-3'
 2. Navigate to the app/ directory
 3. Install the project dependencies: ```$ pip install -r requirements.txt```
-4. Set up the database: ```$ python manage.py migrate```
-5. Create an admin account: ```$ python manage.py createsuperuser```
-6. Migrate again: ```$ python manage.py migrate```
-7. Start webpack builds: ```$ npm run dev```
-8. In another terminal window, start the development server: ```$ python manage.py runserver```
+4. Generate a django secret key and add it to secrets.json. A key can be easily generated using this website: https://djecrety.ir/
+5. Set up the database: ```$ python manage.py migrate```
+6. Create an admin account: ```$ python manage.py createsuperuser```
+7. Migrate again: ```$ python manage.py migrate```
+8. Start webpack builds: ```$ npm run dev```
+9. In another terminal window, start the development server: ```$ python manage.py runserver```
 
 ## Unit Testing Instructions
 
