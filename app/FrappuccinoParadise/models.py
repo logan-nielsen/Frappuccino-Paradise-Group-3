@@ -15,3 +15,11 @@ class Drink(models.Model):
     ingredients = models.ManyToManyField(Ingredient)
     canMake = models.BooleanField(default=False)
 
+
+class Order(models.Model):
+    order = models.ManyToManyField(Drink)
+    customerName = models.CharField(default='', max_length=50)
+    cost = MoneyField(default=0, max_digits=5, decimal_places=2, default_currency='USD')
+    isActive = models.BooleanField(default=False)
+    date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
