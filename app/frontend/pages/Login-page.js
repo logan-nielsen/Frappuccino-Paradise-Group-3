@@ -13,6 +13,19 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
   
 const theme = createTheme();
 
+function Copyright(props) {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="./">
+        Dan's Frappuccino Paradise
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+
 export default function Login() {
   function handleSubmit(event) {
     event.preventDefault();
@@ -79,6 +92,7 @@ export default function Login() {
             </Grid>
           </Box>
         </Box>
+        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );
