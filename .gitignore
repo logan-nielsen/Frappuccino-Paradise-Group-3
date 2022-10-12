@@ -10,3 +10,6 @@ secrets.json
 # Node and Webpack #
 node_modules
 static
+
+# Pycharm #
+.idea
