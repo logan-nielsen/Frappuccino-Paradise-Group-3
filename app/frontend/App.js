@@ -4,14 +4,22 @@ import {
     Routes,
     Route,
   } from "react-router-dom";
+import Nav from './Nav-component';
+import Account from './pages/Account-page';
+import Home from './pages/Home-page';
+import Login from './pages/Login-page';
+import Signup from './pages/Signup-page';
   
   export default function App() {
     return (
       <>
       <Router>
-        <p>Add nav component</p>
+        <Nav />
         <Routes>
-          <Route path="app/" element={<p>Add home component</p>} />
+          <Route path="app/" element={<Home />} />
+          <Route path="app/account" element={<Account />} />
+          <Route path="app/login" element={<Login />} />
+          <Route path="app/signup" element={<Signup />} />
         </Routes>
       </Router>
       </>
