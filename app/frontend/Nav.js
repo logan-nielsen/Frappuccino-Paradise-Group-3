@@ -11,10 +11,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import HomeIcon from '@mui/icons-material/Home';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { IconButton, ListItemText } from '@mui/material';
 
 
@@ -41,15 +44,12 @@ export default function PermanentDrawer(props) {
   return (
   <Box sx={{ display: 'flex' }}>
     <CssBaseline />
-    <AppBar
-      position="fixed"
-      sx={{ 
-        width: `calc(100% - ${drawerWidth}px)`, 
-        ml: `${drawerWidth}px`,
-      }}
+    <AppBar 
+      position="fixed" 
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
     >
       <Toolbar>
-        <Typography variant="h6" noWrap component="h1" sx={{ flexGrow: 1 }}>
+        <Typography noWrap component="h1" sx={{ flexGrow: 1, 'fontSize': '30px' }}>
           Dan's Frappuccino Paradise
         </Typography>
         <IconButton
@@ -78,10 +78,16 @@ export default function PermanentDrawer(props) {
           onClose={handleClose}
         >
           <MenuItem onClick={() => {navigate("app/account"); handleClose()}}>
-            My Account
+            <ListItemIcon>
+              <AccountBoxIcon />
+            </ListItemIcon>
+            <ListItemText>My Account</ListItemText>
           </MenuItem>
           <MenuItem onClick={signOut}>
-            Sign Out
+          <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText>Sign Out</ListItemText>
           </MenuItem>
         </Menu>
       </Toolbar>
@@ -113,7 +119,7 @@ export default function PermanentDrawer(props) {
         <ListItem key="Log In" disablePadding>
           <ListItemButton onClick={() => navigate("app/login")}>
             <ListItemIcon>
-              <HomeIcon />
+              <LoginIcon />
             </ListItemIcon>
             <ListItemText>Log In</ListItemText>
           </ListItemButton>

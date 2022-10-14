@@ -44,13 +44,14 @@ export default function AccountPage() {
     <ThemeProvider theme={theme}>
       <Container component="main">
         <CssBaseline />
-        <Box
+        <Stack
+          spacing={2}
           sx={{
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <Typography component="h1" variant = "h2">Account</Typography>
+          <Typography component="h2" variant = "h3">Account</Typography>
           <Typography variant="body1">Name: { name }</Typography>
           <Typography variant="body1">Email: { email }</Typography>
           <Typography variant="body1">Current Account Balance: { balance }</Typography>
@@ -79,7 +80,7 @@ export default function AccountPage() {
               }}
             >Add</Button>
           </Box>
-        </Box>
+        </Stack>
       </Container>
     </ThemeProvider>
   )
