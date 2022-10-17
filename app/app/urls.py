@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('app/', include('FrappuccinoParadise.urls')),
     path('', views.homeRedirect, name='homeRedirect'),
+    # Built-in authorization views: https://docs.djangoproject.com/en/4.1/topics/auth/default/#built-in-auth-views
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
