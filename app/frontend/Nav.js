@@ -116,14 +116,6 @@ export default function PermanentDrawer(props) {
             <ListItemText>Home</ListItemText>
           </ListItemButton>
         </ListItem>
-        <ListItem key="Log In" disablePadding>
-          <ListItemButton onClick={() => navigate("app/login")}>
-            <ListItemIcon>
-              <LoginIcon />
-            </ListItemIcon>
-            <ListItemText>Log In</ListItemText>
-          </ListItemButton>
-        </ListItem>
       </List>
     </Drawer>
     <Box
