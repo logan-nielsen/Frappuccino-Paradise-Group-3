@@ -11,7 +11,6 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import HomeIcon from '@mui/icons-material/Home';
-import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -37,8 +36,8 @@ export default function PermanentDrawer(props) {
   };
 
   function signOut() {
-    console.log("Sign out");
     handleClose();
+    window.location = '/accounts/logout';
   }
 
   return (
@@ -84,7 +83,7 @@ export default function PermanentDrawer(props) {
             <ListItemText>My Account</ListItemText>
           </MenuItem>
           <MenuItem onClick={signOut}>
-          <ListItemIcon>
+            <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>
             <ListItemText>Sign Out</ListItemText>
