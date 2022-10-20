@@ -7,7 +7,7 @@ import {
 import Nav from './components/Nav';
 import AccountPage from './pages/AccountPage';
 import HomePage from './pages/HomePage';
-import SignupPage from './pages/SignupPage';
+import OrderPage from './pages/OrderPage';
 
 export default function App() {
   return (
@@ -18,7 +18,7 @@ export default function App() {
           <Route path="app/" element={<HomePage />} />
           <Route path="app/home" element={<HomePage />} />
           <Route path="app/account" element={<AccountPage />} />
-          <Route path="app/signup" element={<SignupPage />} />
+          <Route path="app/order" element={<OrderPage />} />
         </Routes>
       </Nav>
     </Router>
