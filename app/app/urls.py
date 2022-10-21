@@ -14,14 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.shortcuts import redirect
 from django.urls import include, path
 from . import views
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('app/', include('FrappuccinoParadise.urls')),
     path('', views.homeRedirect, name='homeRedirect'),
+    path('accounts/signup/', views.login),
     # Built-in authorization views: https://docs.djangoproject.com/en/4.1/topics/auth/default/#built-in-auth-views
     path('accounts/', include('django.contrib.auth.urls')),
 ]

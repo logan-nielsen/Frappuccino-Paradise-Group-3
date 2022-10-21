@@ -6,6 +6,6 @@ from . import views
 urlpatterns = [
   # other patterns here
   re_path('api/test', views.api, name='api'),
-  re_path(r'.*', TemplateView.as_view(template_name='FrappuccinoParadise/index.html')),
-  path("loghours/", views.add_shift, "add_shift"),
+  re_path(r'.*', views.index, name='index'),
+  path("api/loghours/", views.add_shift, "add_shift"),
 ]
