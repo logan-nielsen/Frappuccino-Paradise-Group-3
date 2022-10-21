@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 
@@ -20,9 +20,9 @@ def hourLog(request):
 def add_shift(request):
     date = request.POST['date']
     hours = request.POST['hours']
+    error = None
     try:
         request.user.account.timecard_set.create(date=date, hours=hours)
     except:
-    # TODO: Render shift log here
-        return HttpResponse("Error logging shift")
-    return HttpResponse("Shift log successful!")
+        error = "Error logging hours"
+    return JsonResponse({'error': error})
