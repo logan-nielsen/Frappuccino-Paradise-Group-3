@@ -8,11 +8,9 @@ def is_employee(user):
 def api(request):
     return JsonResponse({'test': True})
     
+@login_required
 def index(request):
     return render(request, 'FrappuccinoParadise/index.html')
-
-def hourLog(request):
-    pass
 
 # For barista to log a shift
 @login_required
@@ -26,3 +24,5 @@ def add_shift(request):
     except:
         error = "Error logging hours"
     return JsonResponse({'error': error})
+
+
