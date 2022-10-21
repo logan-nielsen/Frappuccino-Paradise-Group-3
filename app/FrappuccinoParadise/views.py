@@ -25,4 +25,18 @@ def add_shift(request):
         error = "Error logging hours"
     return JsonResponse({'error': error})
 
-
+# For barista to see the last (up to) 20 logged shifts
+@login_required
+@user_passes_test(is_employee)
+def get_logged_shifts(request):
+    response = {}
+    try:
+        for shift in request.user.account.timecard_set.order_by('-date')[:20]:
+            response[shift.id] = {
+                'date': shift.date,
+                'hours': shift.hours,
+                'paid': shift.paid,
+            }
+    except:
+        response['error'] = "Error retrieving shifts"
+    return JsonResponse(response)
