@@ -1,5 +1,3 @@
-from re import U
-from xml.dom import NotFoundErr
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
@@ -43,6 +41,7 @@ def get_logged_shifts(request):
                 'hours': shift.hours,
                 'paid': shift.paid,
             }
+        response['error'] = None
     except:
         response['error'] = "Error retrieving shifts"
     return JsonResponse(response)
@@ -59,9 +58,10 @@ def employees(request):
                 'first_name': user.first_name,
                 'last_name': user.last_name,
             }
+        response['error'] = None
     except:
         response['error'] = "Error retrieving employee information"
-    return response
+    return JsonResponse(response)
 
 # For managers to see an employee's unpaid shifts
 @login_required
@@ -70,17 +70,18 @@ def get_unpaid(request):
     userId = request.POST['user_id']
     response = {}
     try:
-        employee = User.objects.get(userId)
+        employee = User.objects.get(id=userId)
         for shift in employee.account.timecard_set.filter(paid=False):
             response[shift.id] = {
                 'date': shift.date,
                 'hours': shift.hours,
             }
+        response['error'] = None
     except User.DoesNotExist:
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error retrieving shifts for this user"
-    return response            
+    return JsonResponse(response)
 
 # Elevate user to barista status
 @login_required
@@ -93,8 +94,26 @@ def hire(request):
         user = User.objects.get(username=username, email=email)
         baristas = Group.objects.get(name='Baristas')
         user.groups.add(baristas)
+        response['error'] = None
     except User.DoesNotExist:
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error making this user a barista"
-    return response
+    return JsonResponse(response)
+
+# Demote barista to customer
+@login_required
+@user_passes_test(is_manager)
+def fire(request):
+    userId = request.POST['user_id']
+    response = {}
+    try:
+        user = User.objects.get(id=userId)
+        baristas = Group.objects.get(name='Baristas')
+        user.groups.remove(baristas)
+        response['error'] = None
+    except User.DoesNotExist:
+        response['error'] = "Error finding this user"
+    except:
+        response['error'] = "Error removing user from baristas group"
+    return JsonResponse(response)
