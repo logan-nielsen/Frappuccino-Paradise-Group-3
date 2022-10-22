@@ -11,5 +11,6 @@ urlpatterns = [
   path("api/hire/", views.hire, name="hire"),
   path("api/fire/", views.fire, name='fire'),
   path("api/newuser/", views.new_account, name="new_account"),
+  path("api/addcredit/", views.add_credit, name="add_credit"),
   re_path(r'.*', views.index, name='index'),
 ]

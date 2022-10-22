@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
+from djmoney.money import Money
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -152,4 +153,17 @@ def new_account(request):
         response['error'] = "Error creating new customer"
     except:
         response['error'] = "Error creating user"
+    return JsonResponse(response)
+
+# Add credit to account
+# No return besides errors
+@login_required
+def add_credit(request):
+    amount = request.POST['amount']
+    response = {}
+    try:
+        request.user.account.credit += Money(amount, 'USD')
+        response['error'] = None
+    except:
+        response['error'] = f"Could not add {amount} to credit"
     return JsonResponse(response)
