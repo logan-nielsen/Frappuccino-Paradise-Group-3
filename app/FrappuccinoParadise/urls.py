@@ -12,4 +12,5 @@ urlpatterns = [
   path("api/getunpaid/", views.get_unpaid, name="get_unpaid"),
   path("api/hire/", views.hire, name="hire"),
   path("api/fire/", views.fire, name='fire'),
+  path("api/newuser/", views.new_account, name="new_account"),
 ]

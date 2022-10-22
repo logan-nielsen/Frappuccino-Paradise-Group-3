@@ -1,3 +1,4 @@
+from FrappuccinoParadise.models import Account
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
@@ -122,4 +123,33 @@ def fire(request):
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error removing user from baristas group"
+    return JsonResponse(response)
+
+# Create new account
+# No return besides errors
+def new_account(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    firstName = request.POST['first_name']
+    lastName = request.POST['last_name']
+    email = request.POST['email']
+    response = {}
+    try:
+        customers = Group.objects.get('Customers')
+        newuser = User.objects.create_user(
+            username=username, 
+            password=password, 
+            email=email, 
+            first_name=firstName, 
+            last_name=lastName
+        )
+        newuser.groups.add(customers)
+        newuser.save()
+        account = Account(user=newuser)
+        account.save()
+        response['error'] = None
+    except Group.DoesNotExist:
+        response['error'] = "Error creating new customer"
+    except:
+        response['error'] = "Error creating user"
     return JsonResponse(response)
