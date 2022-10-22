@@ -155,6 +155,24 @@ def new_account(request):
         response['error'] = "Error creating user"
     return JsonResponse(response)
 
+# Get account information
+# Returns first_name, last_name, username, email, credit, currency
+@login_required
+def account(request):
+    user = request.user
+    response = {}
+    try:
+        response['first_name'] = user.first_name
+        response['last_name'] = user.last_name
+        response['username'] = user.username
+        response['email'] = user.email
+        response['credit'] = str(user.account.credit.amount)
+        response['currency'] = user.account.credit.currency
+        response['error'] = None
+    except:
+        response['error'] = "Error retrieving account information"
+    return JsonResponse(response)
+
 # Add credit to account
 # No return besides errors
 @login_required
