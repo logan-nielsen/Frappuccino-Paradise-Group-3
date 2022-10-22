@@ -12,5 +12,7 @@ urlpatterns = [
   path("api/newuser/", views.new_account, name="new_account"),
   path("api/addcredit/", views.add_credit, name="add_credit"),
   path("api/account/", views.account, name="account"),
+  path("api/isemployee/", views.user_is_employee, name="user_is_employee"),
+  path("api/ismanager/", views.is_employee, name="ismanager"),
   re_path(r'^(?!api.*$).*', views.index, name='index'),
 ]

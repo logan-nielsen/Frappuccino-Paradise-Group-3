@@ -186,3 +186,7 @@ def add_credit(request):
     except:
         response['error'] = f"Could not add {amount} to credit"
     return JsonResponse(response)
+
+@login_required
+def user_is_employee(request):
+      return JsonResponse({'is_employee': is_employee(request.user)})

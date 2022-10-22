@@ -12,3 +12,7 @@ nav a, a {
     margin-bottom: 30px;
     margin-right: clamp(50px, 20%, 200px);
 }
+
+.error-message {
+    color: red;
+}
