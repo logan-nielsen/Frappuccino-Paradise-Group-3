@@ -17,6 +17,7 @@ def index(request):
     return render(request, 'FrappuccinoParadise/index.html')
 
 # For barista to log a shift
+# Doesn't return anything besides errors
 @login_required
 @user_passes_test(is_employee)
 def add_shift(request):
@@ -30,6 +31,7 @@ def add_shift(request):
     return JsonResponse({'error': error})
 
 # For barista to see the last (up to) 20 logged shifts
+# Returns date, number of hours and whether employee has been paid for each of those shifts
 @login_required
 @user_passes_test(is_employee)
 def get_logged_shifts(request):
@@ -47,6 +49,7 @@ def get_logged_shifts(request):
     return JsonResponse(response)
 
 # For managers to see their employees
+# Returns username, first name and last name of each employee
 @login_required
 @user_passes_test(is_manager)
 def employees(request):
@@ -64,6 +67,7 @@ def employees(request):
     return JsonResponse(response)
 
 # For managers to see an employee's unpaid shifts
+# Returns date and number of hours for each unpaid shift
 @login_required
 @user_passes_test(is_manager)
 def get_unpaid(request):
@@ -84,6 +88,7 @@ def get_unpaid(request):
     return JsonResponse(response)
 
 # Elevate user to barista status
+# No return besides errors
 @login_required
 @user_passes_test(is_manager)
 def hire(request):
@@ -102,6 +107,7 @@ def hire(request):
     return JsonResponse(response)
 
 # Demote barista to customer
+# No return besides errors
 @login_required
 @user_passes_test(is_manager)
 def fire(request):
