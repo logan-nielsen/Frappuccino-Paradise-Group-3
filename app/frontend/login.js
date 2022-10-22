@@ -6,7 +6,7 @@ import {
   Route,
 } from "react-router-dom";
 import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
+import SignUpPage from './pages/SignUpPage'
 
 import './styles/App.css';
 
@@ -16,7 +16,7 @@ root.render(
     <Router>
       <Routes>
         <Route path="accounts/login" element={<LoginPage />} />
-        <Route path="accounts/signup" element={<SignupPage />} />
+        <Route path="accounts/signup" element={<SignUpPage />} />
       </Routes>
     </Router>
   </React.StrictMode>
