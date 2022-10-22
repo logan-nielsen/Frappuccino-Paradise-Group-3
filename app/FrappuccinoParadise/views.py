@@ -1,3 +1,5 @@
+from re import U
+from xml.dom import NotFoundErr
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
@@ -61,7 +63,7 @@ def employees(request):
         response['error'] = "Error retrieving employee information"
     return response
 
-# For managers to see employee's unpaid shifts
+# For managers to see an employee's unpaid shifts
 @login_required
 @user_passes_test(is_manager)
 def get_unpaid(request):
@@ -69,14 +71,30 @@ def get_unpaid(request):
     response = {}
     try:
         employee = User.objects.get(userId)
-        try:
-            for shift in employee.account.timecard_set.filter(paid=False):
-                response[shift.id] = {
-                    'date': shift.date,
-                    'hours': shift.hours,
-                }
-        except:
-            response['error'] = "Error retrieving shifts for this user"
-    except:
+        for shift in employee.account.timecard_set.filter(paid=False):
+            response[shift.id] = {
+                'date': shift.date,
+                'hours': shift.hours,
+            }
+    except User.DoesNotExist:
         response['error'] = "Error finding this user"
+    except:
+        response['error'] = "Error retrieving shifts for this user"
     return response            
+
+# Elevate user to barista status
+@login_required
+@user_passes_test(is_manager)
+def hire(request):
+    username = request.POST['username']
+    email = request.POST['email']
+    response = {}
+    try:
+        user = User.objects.get(username=username, email=email)
+        baristas = Group.objects.get(name='Baristas')
+        user.groups.add(baristas)
+    except User.DoesNotExist:
+        response['error'] = "Error finding this user"
+    except:
+        response['error'] = "Error making this user a barista"
+    return response

@@ -11,4 +11,5 @@ urlpatterns = [
   path("api/getshifts/", views.get_logged_shifts, name='get_logged_shifts'),
   path("api/employees/", views.employees, 'employees'),
   path("api/getunpaid/", views.get_unpaid, name="get_unpaid"),
+  path("api/hire/", views.hire, name="hire"),
 ]
