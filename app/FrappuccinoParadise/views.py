@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
@@ -20,8 +21,8 @@ def index(request):
 @login_required
 @user_passes_test(is_employee)
 def add_shift(request):
-    date = request.POST['date']
     hours = request.POST['hours']
+    date = request.POST['date'] if 'date' in request.POST else datetime.now().date()
     error = None
     try:
         request.user.account.timecard_set.create(date=date, hours=hours)

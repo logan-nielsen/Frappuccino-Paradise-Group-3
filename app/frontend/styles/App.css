@@ -1,3 +1,14 @@
 nav a, a {
     cursor: pointer
 }
+
+.flex-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: start;
+}
+
+.separated-flex-item {
+    margin-bottom: 30px;
+    margin-right: clamp(50px, 20%, 200px);
+}

@@ -47,7 +47,6 @@ export default function DrinkDialog({ addDrink, open, setOpen }) {
       onClose={handleClose}
       fullWidth
       maxWidth="xs"
-      aria-describedby="alert-dialog-slide-description"
     >
       <DialogTitle>Add Drink</DialogTitle>
       <DialogContent>
