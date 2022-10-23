@@ -12,8 +12,6 @@ import {
   import Nav from './pages/Navigation';
   import PlaceOrderPage from "./pages/PlaceOrderPage";
   
-  import './App.css';
-  
   export default function App() {
     return (
       <>

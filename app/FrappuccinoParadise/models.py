@@ -7,6 +7,17 @@ class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     credit = MoneyField(default=0, max_digits=6, decimal_places=2, default_currency='USD')
 
+    def getUnpaidHours(self):
+        unpaid = self.timecard_set.filter(paid=False)
+        return sum([shift.hours for shift in unpaid])
+
+
+class TimeCard(models.Model):
+    employee = models.ForeignKey(Account, on_delete=models.CASCADE)
+    date = models.DateField()
+    hours = models.FloatField()
+    paid = models.BooleanField(default=False)
+
 
 class Ingredient(models.Model):
     name = models.CharField(default='', max_length=50)
