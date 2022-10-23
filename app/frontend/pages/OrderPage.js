@@ -3,49 +3,70 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import DrinkDialog from '../components/DrinkDialog';
-import { Button } from '@mui/material';
+import { Button, Fab, Grid } from '@mui/material';
+import DrinkGridItem from '../components/DrinkGridItem';
+import { Stack } from '@mui/system';
+import ConfirmOrderDialog from '../components/ConfirmOrderDialog';
 
-const steps = ['Select Drink', 'Add Ons', 'Confirm Order'];
 const theme = createTheme();
 
 export default function OrderPage() {
-  const [drinkDialogOpen, setDrinkDialogOpen] = useState(false)
-  const [drinks, setDrinks] = useState([])
-
-  useEffect(() => {
-    console.log(drinks)
-  }, [drinks])
-
-  function handleNext() {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  }
+  const [drinkDialogOpen, setDrinkDialogOpen] = useState(false);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [drinks, setDrinks] = useState(["drink 1", "drink 2", "drink 3"]);
+  const [selectedDrink, setSelectedDrink] = useState();
+  const [order, setOrder] = useState([])
   
-  function handleBack() {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  function addDrinkOrder(drinkOrder) {
+    setOrder([...order, drinkOrder])
   }
 
   function placeOrder() {
-    console.log("order placed");
+    // TODO: Place order on server
+    console.log("order placed")
+
+    setSelectedDrink(undefined);
+    setOrder([])
   }
 
-  function addDrink(drink) {
-    setDrinks([...drinks, drink])
-  }
+  const drinkGridItems = drinks.map((drink, index) => 
+    <DrinkGridItem 
+      key={index} 
+      drink={drink} 
+      setSelectedDrink={setSelectedDrink}
+      setDrinkDialogOpen={setDrinkDialogOpen}
+    />
+  )
 
   return (
     <ThemeProvider theme={theme}>
       <Container component="main">
         <CssBaseline />
-        <Button 
-          variant="contained"
-          onClick={() => setDrinkDialogOpen(true)}
-        >
-          Add Drink
-        </Button>
+
+        <Stack spacing={2}>
+          <Button 
+            variant="contained"
+            onClick={() => setOrderDialogOpen(true)}
+          >
+            Order
+          </Button>
+          <Grid container spacing={2}>
+            { drinkGridItems }
+          </Grid>
+        </Stack>
+
         <DrinkDialog 
-          addDrink={addDrink}
+          drink={selectedDrink}
+          addDrinkOrder={addDrinkOrder}
           open={drinkDialogOpen} 
           setOpen={setDrinkDialogOpen} 
+        />
+
+        <ConfirmOrderDialog 
+          open={orderDialogOpen}
+          setOpen={setOrderDialogOpen}
+          order={order}
+          placeOrder={placeOrder}
         />
       </Container>
     </ThemeProvider>

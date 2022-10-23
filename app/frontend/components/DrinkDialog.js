@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
 import SelectDrink from '../components/SelectDrink';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
@@ -7,36 +7,32 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
 import SelectAddOns from '../components/SelectAddOns';
+import { Stack } from '@mui/system';
 
 const steps = ['Select Drink', 'Add Ons'];
 
-export default function DrinkDialog({ addDrink, open, setOpen }) {
-  const [activeStep, setActiveStep] = useState(0);
-  const [drink, setDrink] = useState(null)
-  const [addOns, setAddOns] = useState([])
-
-  function handleNext() {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  }
-  
-  function handleBack() {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  }
+export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
+  const [amount, setAmount] = useState(1);
 
   function save() {
-    addDrink({
-      drink: drink,
-      addOns: addOns,
+    addDrinkOrder({
+      name: drink,
+      amount, amount
     })
 
-    setActiveStep(0);
-    setDrink(null)
-    setAddOns([])
-    setOpen(false);
+    handleClose();
   }
 
   function handleClose() {
-    
+    setOpen(false);
+    setAmount(1);
+  }
+
+  function handleAmountInput(event) {
+    let value = event.target.value
+		if (isPositiveInteger(value) && parseInt(value) > 0) {
+		  setAmount(value)
+		}
   }
 
   return (
@@ -46,60 +42,37 @@ export default function DrinkDialog({ addDrink, open, setOpen }) {
       keepMounted
       onClose={handleClose}
       fullWidth
-      maxWidth="xs"
+      maxWidth="sm"
     >
-      <DialogTitle>Add Drink</DialogTitle>
+      <DialogTitle>{ drink }</DialogTitle>
       <DialogContent>
-        <Box sx={{ width: '100%' }}>
-          <Stepper activeStep={activeStep}>
-            {steps.map((label, index) => {
-              const stepProps = {};
-              const labelProps = {};
-              return (
-                <Step key={label} {...stepProps}>
-                  <StepLabel {...labelProps}>{label}</StepLabel>
-                </Step>
-              );
-            })}
-          </Stepper>
-
-          {/* Conditionally render based on which step the user is on */}
-          {activeStep === 0 && (
-            <>
-            <SelectDrink drink={drink} setDrink={setDrink} />
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              <Button
-                color="inherit"
-                disabled
-                sx={{ mr: 1 }}
-              >
-                Back
-              </Button>
-              <Box sx={{ flex: '1 1 auto' }} />
-
-              <Button onClick={handleNext}>Next</Button>
-            </Box>
-            </>
-          )}
-          {activeStep === 1 && (
-            <>
-            <SelectAddOns addOns={addOns} setAddOns={setAddOns} />
-            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              <Button
-                onClick={handleBack}
-                sx={{ mr: 1 }}
-              >
-                Back
-              </Button>
-              <Box sx={{ flex: '1 1 auto' }} />
-
-              <Button onClick={save}>Add Drink</Button>
-            </Box>
-            </>
-          )}
-        </Box>
+        <Stack 
+          spacing={2}
+          component="form" 
+          noValidate 
+          autoComplete="false" 
+          sx={{ width: '100%' }}
+        >
+          <TextField
+            label="Amount"
+            type="number"
+            value={amount}
+            onChange={handleAmountInput}
+            sx={{ marginTop: "10px" }}
+          />
+          <Button
+            onClick={save}
+            variant="contained"
+          >
+            Submit
+          </Button>
+        </Stack>
       </DialogContent>
     </Dialog>
     </>
   );
+}
+
+function isPositiveInteger(value) {
+  return /^\d*$/.test(value);
 }
