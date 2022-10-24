@@ -1,10 +1,13 @@
 from datetime import datetime
+import json
 from FrappuccinoParadise.models import Account
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
+
+from FrappuccinoParadise.models import Drink, Order
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -18,6 +21,55 @@ def api(request):
 @login_required
 def index(request):
     return render(request, 'FrappuccinoParadise/index.html')
+
+# Get menu items
+# Returns a list of drink objects
+@login_required
+def get_menu(request):
+    return JsonResponse(Drink.objects.all().values())
+
+# Place order
+# Doesn't return anything besides errors
+@login_required
+def place_order(request):
+    error = None
+    try:
+        order = json.loads(request.body.decode('utf-8'))
+        cost = 0
+        for drink in order:
+            cost += drink.cost
+        o = Order(customerName=request.user.username,cost=cost)
+        for drink in order:
+            o.order.add(Drink.objects.get(id=drink.id))
+        #TODO: check inventory
+        #TODO: check account balance
+        #TODO: update inventory
+        #TODO: transfer funds
+        o.save()
+    except:
+        error = "Error placing order"
+    return JsonResponse({'error': error})
+
+# Get list of orders
+# Returns a list of orders
+@login_required
+def get_orders(request):
+    return JsonResponse(Order.objects.all().values())
+
+# Changes status of order
+# Doesn't return anything besides errors
+@login_required
+@user_passes_test(is_employee)
+def manage_order(request):
+    error = None
+    try:
+        order = json.loads(request.body.decode('utf-8'))
+        o = Order.objects.get(id=order.id)
+        o.isActive = order.isActive
+        o.save()
+    except:
+        error = "Error managing order"
+    return JsonResponse({'error': error})
 
 # For barista to log a shift
 # Doesn't return anything besides errors
