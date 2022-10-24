@@ -22,15 +22,19 @@ export default function AccountPage() {
   const [isEmployee, setIsEmployee] = useState();
 
 
+  // Get if the user is an employee and general user information
   useEffect(() => {
     fetch("api/isemployee/")
       .then(response => response.json())
       .then(json => setIsEmployee(json.is_employee))
 
-    // TODO: get name, email, and balance
-    setName("Test Name")
-    setEmail("test@example.com")
-    setBalance(100)
+    fetch("api/account/")
+      .then(response => response.json())
+      .then(json => {
+        setName(`${json.first_name} ${json.last_name}`)
+        setEmail(json.email)
+        setBalance(json.credit)
+      })
   }, [])
 
   function handleHoursInput(event) {
