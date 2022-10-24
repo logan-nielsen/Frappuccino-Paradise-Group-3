@@ -236,6 +236,7 @@ def add_credit(request):
     response = {}
     try:
         request.user.account.credit += Money(amount, 'USD')
+        request.user.account.save()
         response['error'] = None
     except:
         response['error'] = f"Could not add {amount} to credit"

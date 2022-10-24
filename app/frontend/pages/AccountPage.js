@@ -48,6 +48,11 @@ export default function AccountPage() {
 		}
   }
 
+  function newSnackbar(message) {
+    setSnackbarMessage(message)
+    setSnackbarOpen(true)
+  }
+
   function submitPayroll(e) {
     e.preventDefault()
     setSubmitting(true)
@@ -70,17 +75,16 @@ export default function AccountPage() {
       .then(json => {
         if (json.error) {
           setPayrollError(true);
-          setSnackbarMessage("Failed to submit hours");
+          newSnackbar("Failed to submit hours");
         }
         else {
-          setSnackbarMessage("Hours Saved");
+          newSnackbar("Hours Saved");
           setHoursToAdd("");
         }
-        setSnackbarOpen(true);
       })
       .catch(() => {
         setPayrollError(true);
-        setSnackbarMessage("Failed to submit hours");
+        newSnackbar("Failed to submit hours");
       })
       .finally(() => setSubmitting(false))
   }
@@ -88,6 +92,11 @@ export default function AccountPage() {
   function handleSnackbarClose() {
     setSnackbarOpen(false);
     setSnackbarMessage(undefined);
+  }
+
+  function addBalance(balanceIncrease) {
+    let newBalance = parseFloat(balance) + parseFloat(balanceIncrease)
+    setBalance(newBalance.toFixed(2))
   }
 
   return (
@@ -99,7 +108,7 @@ export default function AccountPage() {
             <Typography component="h2" variant = "h3">Account</Typography>
             <Typography variant="body1">Name: { name }</Typography>
             <Typography variant="body1">Email: { email }</Typography>
-            <Typography variant="body1">Current Account Balance: { balance }</Typography>
+            <Typography variant="body1">Current Account Balance: ${ balance }</Typography>
 
             <Button
               id="increase-balance-btn"
@@ -153,6 +162,8 @@ export default function AccountPage() {
         <AddBalanceDialog 
           open={addBalanceModalOpen} 
           setOpen={setAddBalanceModalOpen} 
+          addBalance={addBalance}
+          newSnackbar={newSnackbar}
         />
 
         <Snackbar

@@ -2,7 +2,7 @@ import { Button, Dialog, DialogContent, DialogTitle, TextField } from '@mui/mate
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 
-export default function AddBalanceDialog({ open, setOpen }) {
+export default function AddBalanceDialog({ open, setOpen, addBalance, newSnackbar }) {
 
   const [balanceIncrease, setBalanceIncrease] = useState("")
 	
@@ -21,6 +21,39 @@ export default function AddBalanceDialog({ open, setOpen }) {
 		setOpen(false)
 	}
 
+  function submitBalanceIncrease(e) {
+    e.preventDefault()
+
+    const formData = new FormData()
+    formData.append(
+      'csrfmiddlewaretoken',
+      getCookie('csrftoken')
+    );
+    formData.append(
+      'amount',
+      balanceIncrease
+    )
+
+    fetch('api/addcredit/', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.error) {
+          newSnackbar("")
+        }
+        else {
+          addBalance(balanceIncrease)
+          newSnackbar("Balance Increase Added")
+          setBalanceIncrease("")
+        }
+      })
+      .finally(() => {
+        setOpen(false)
+      })
+  }
+
 	return (
 		<Dialog
 		  open={open}
@@ -32,8 +65,7 @@ export default function AddBalanceDialog({ open, setOpen }) {
       <DialogContent>
         <Box 
           component="form"
-          method="post" 
-          action="/api/increase-balance"
+          onSubmit={submitBalanceIncrease}
           width="100%"
           sx={{ mt: 1 }}
         >
@@ -42,9 +74,9 @@ export default function AddBalanceDialog({ open, setOpen }) {
             label="Amount"
             name="amount"
             placeholder='0'
+            required
             value={balanceIncrease}
             onChange={handleBalanceInput}
-            required
           />
           <Button 
             id="add-balance-btn"
@@ -64,4 +96,20 @@ export default function AddBalanceDialog({ open, setOpen }) {
 
 function isPositiveInteger(value) {
   return /^\d*$/.test(value);
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
 }
