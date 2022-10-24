@@ -66,7 +66,8 @@ def manage_order(request):
     try:
         order = json.loads(request.body.decode('utf-8'))
         o = Order.objects.get(id=order.id)
-        o.isActive = order.isActive
+        o.isReady = order.isReady
+        o.isDelivered = order.isDelivered
         o.save()
     except:
         error = "Error managing order"
