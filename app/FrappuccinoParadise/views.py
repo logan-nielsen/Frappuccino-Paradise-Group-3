@@ -211,7 +211,7 @@ def new_account(request):
     return JsonResponse(response)
 
 # Get account information
-# Returns first_name, last_name, username, email, credit, currency
+# Returns first_name, last_name, username, email, credit, currency, groups
 @login_required
 def account(request):
     user = request.user
@@ -223,6 +223,7 @@ def account(request):
         response['email'] = user.email
         response['credit'] = str(user.account.credit.amount)
         response['currency'] = str(user.account.credit.currency)
+        response['groups'] = [group.name for group in user.groups.all()]
         response['error'] = None
     except:
         response['error'] = "Error retrieving account information"
