@@ -222,7 +222,7 @@ def account(request):
         response['username'] = user.username
         response['email'] = user.email
         response['credit'] = str(user.account.credit.amount)
-        response['currency'] = user.account.credit.currency
+        response['currency'] = str(user.account.credit.currency)
         response['error'] = None
     except:
         response['error'] = "Error retrieving account information"

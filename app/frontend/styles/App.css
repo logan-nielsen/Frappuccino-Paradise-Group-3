@@ -16,3 +16,8 @@ nav a, a {
 .error-message {
     color: red;
 }
+
+.drink-card {
+    height: 100px;
+    text-align: center;
+}
