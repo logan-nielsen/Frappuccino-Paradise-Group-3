@@ -13,17 +13,37 @@ const theme = createTheme();
 export default function OrderPage() {
   const [drinkDialogOpen, setDrinkDialogOpen] = useState(false);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
-  const [drinks, setDrinks] = useState(["drink 1", "drink 2", "drink 3"]);
+  const [drinks, setDrinks] = useState([]);
   const [selectedDrink, setSelectedDrink] = useState();
   const [order, setOrder] = useState([])
+
+  useEffect(() => {
+    fetch('api/getmenu/')
+      .then(response => response.json())
+      .then(allDrinks => {
+        setDrinks(allDrinks)
+      })
+  }, [])
   
   function addDrinkOrder(drinkOrder) {
     setOrder([...order, drinkOrder])
   }
 
   function placeOrder() {
-    // TODO: Place order on server
-    console.log("order placed")
+    const formData = new FormData()
+    formData.append(
+      'csrfmiddlewaretoken',
+      getCookie('csrftoken')
+    )
+    formData.append(
+      'order',
+      JSON.stringify(order)
+    );
+
+    fetch('api/placeorder/', {
+      method: 'POST',
+      body: formData
+    })
 
     setSelectedDrink(undefined);
     setOrder([])
@@ -71,4 +91,20 @@ export default function OrderPage() {
       </Container>
     </ThemeProvider>
   );
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
 }

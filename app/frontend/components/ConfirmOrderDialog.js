@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
@@ -16,8 +16,8 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder })
     handleClose()
   }
 
-  const orderItems = order.map((drink, index) => 
-    <Typography key={index}>{ drink.name }: { drink.amount }</Typography>
+  const orderItems = order.map((item, index) => 
+    <Typography key={index}>{ item.drink.name }: { item.amount }</Typography>
   )
 
   return (

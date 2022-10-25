@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
 import SelectDrink from '../components/SelectDrink';
 import Box from '@mui/material/Box';
@@ -16,7 +16,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
 
   function save() {
     addDrinkOrder({
-      name: drink,
+      drink: drink,
       amount, amount
     })
 
@@ -44,7 +44,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>{ drink }</DialogTitle>
+      <DialogTitle>{drink ? drink.name : ""}</DialogTitle>
       <DialogContent>
         <Stack 
           spacing={2}

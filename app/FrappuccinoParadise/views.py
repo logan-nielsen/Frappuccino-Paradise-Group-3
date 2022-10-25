@@ -1,7 +1,8 @@
 from datetime import datetime
 import json
+from msilib.schema import Error
 from FrappuccinoParadise.models import Account
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
@@ -26,7 +27,7 @@ def index(request):
 # Returns a list of drink objects
 @login_required
 def get_menu(request):
-    return JsonResponse(Drink.objects.all().values())
+    return JsonResponse(list(Drink.objects.values()), safe=False)
 
 # Place order
 # Doesn't return anything besides errors
@@ -34,20 +35,26 @@ def get_menu(request):
 def place_order(request):
     error = None
     try:
-        order = json.loads(request.body.decode('utf-8'))
+        order = json.loads(request.POST['order'])
+        
         cost = 0
-        for drink in order:
-            cost += drink.cost
-        o = Order(customerName=request.user.username,cost=cost)
-        for drink in order:
-            o.order.add(Drink.objects.get(id=drink.id))
+        for item in order:
+            cost += float(item['drink']['cost'])
+        
+        o = Order(customerName=request.user.username, cost=cost)
+        o.save()
+
+        for item in order:
+            o.order.add(Drink.objects.get(pk=item['drink']['id']))
+        o.save()
+
         #TODO: add addons?
         #TODO: check inventory
         #TODO: check account balance
         #TODO: update inventory
         #TODO: transfer funds
-        o.save()
-    except:
+
+    except Exception as e:
         error = "Error placing order"
     return JsonResponse({'error': error})
 

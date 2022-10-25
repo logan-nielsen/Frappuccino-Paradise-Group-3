@@ -19,7 +19,8 @@ export default function DrinkGridItem({ drink, setSelectedDrink, setDrinkDialogO
           sx={{ height: '100%' }}
         >
           <CardContent>
-            { drink }
+            <p>{ drink ? drink.name : "" }</p>
+            <p>${ drink ? drink.cost : "" }</p>
           </CardContent>
         </CardActionArea>
       </Card>
