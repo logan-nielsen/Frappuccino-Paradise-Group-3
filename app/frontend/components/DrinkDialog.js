@@ -53,6 +53,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
           autoComplete="false" 
           sx={{ width: '100%' }}
         >
+          <Typography>${drink ? drink.cost : ""}</Typography>
           <TextField
             label="Amount"
             type="number"

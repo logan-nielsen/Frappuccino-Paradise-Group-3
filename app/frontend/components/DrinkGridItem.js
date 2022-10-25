@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardActionArea, CardContent, Grid } from '@mui/material';
+import { Card, CardActionArea, CardContent, Grid, Typography } from '@mui/material';
 
 export default function DrinkGridItem({ drink, setSelectedDrink, setDrinkDialogOpen }) {
   
@@ -13,13 +13,13 @@ export default function DrinkGridItem({ drink, setSelectedDrink, setDrinkDialogO
       item
       xs={4}
     >
-      <Card className='drink-card'>
+      <Card variant="outlined" className='drink-card'>
         <CardActionArea 
           onClick={handleClick}
           sx={{ height: '100%' }}
         >
           <CardContent>
-            <p>{ drink ? drink.name : "" }</p>
+            <Typography>{ drink ? drink.name : "" }</Typography>
             <p>${ drink ? drink.cost : "" }</p>
           </CardContent>
         </CardActionArea>

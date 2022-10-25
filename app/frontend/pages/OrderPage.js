@@ -68,7 +68,7 @@ export default function OrderPage() {
             variant="contained"
             onClick={() => setOrderDialogOpen(true)}
           >
-            Order
+            Place Order
           </Button>
           <Grid container spacing={2}>
             { drinkGridItems }

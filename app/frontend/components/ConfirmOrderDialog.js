@@ -36,11 +36,20 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder })
           sx={{ width: '100%' }}
         >
           { orderItems }
+
+          {/* Display a message if no drinks have been added to the order */}
+          { !order.length && 
+            <Typography>You haven't added anything to your order</Typography>
+          }
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSubmit} autoFocus>Place Order</Button>
+        <Button 
+          onClick={handleSubmit} 
+          autoFocus
+          disabled={!order.length}
+        >Place Order</Button>
       </DialogActions>
     </Dialog>
     </>
