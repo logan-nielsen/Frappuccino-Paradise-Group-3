@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
 
-from FrappuccinoParadise.models import Drink, Order
+from FrappuccinoParadise.models import Drink, Order, Ingredient
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -28,6 +28,12 @@ def index(request):
 @login_required
 def get_menu(request):
     return JsonResponse(list(Drink.objects.values()), safe=False)
+
+# Get menu items
+# Returns a list of drink objects
+@login_required
+def get_ingredients(request):
+    return JsonResponse(list(Ingredient.objects.values()), safe=False)
 
 # Place order
 # Doesn't return anything besides errors

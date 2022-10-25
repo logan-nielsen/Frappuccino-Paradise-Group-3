@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogTitle, TextField, Typography } from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
 import SelectDrink from '../components/SelectDrink';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
@@ -13,6 +13,19 @@ const steps = ['Select Drink', 'Add Ons'];
 
 export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   const [amount, setAmount] = useState(1);
+  const [ingredients, setIngredients] = useState([]);
+
+  useEffect(() => {
+    fetch('api/getingredients')
+      .then(response => response.json())
+      .then(allIngredients => {
+        allIngredients.forEach(element => {
+          element.number = 0;
+        });
+
+        setIngredients(allIngredients)
+      })
+  }, []);
 
   function save() {
     addDrinkOrder({
@@ -28,12 +41,39 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
     setAmount(1);
   }
 
+  function setIngredientNumber(index, newNumber) {
+    let newIngredients = [...ingredients];
+    let ingredient = {...ingredients[index]};
+    ingredient.number = newNumber;
+    newIngredients[index] = ingredient
+    setIngredients(newIngredients);
+  }
+
   function handleAmountInput(event) {
     let value = event.target.value
 		if (isPositiveInteger(value) && parseInt(value) > 0) {
 		  setAmount(value)
 		}
   }
+
+  function handleIngredientInput(event, index) {
+    let value = event.target.value
+    if (isPositiveInteger(value) && parseInt(value) >= 0) {
+      setIngredientNumber(index, value);
+    }
+  }
+
+  const ingredientItem = ingredients.map((ingredient, index) => 
+    <Grid item xs={6} key={index}>
+      <TextField
+        label={ingredient.name}
+        type="number"
+        value={ingredient.number}
+        onChange={event => handleIngredientInput(event, index)}
+        sx={{ marginTop: "10px" }}
+      />
+    </Grid> 
+  )
 
   return (
     <>
@@ -54,6 +94,9 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
           sx={{ width: '100%' }}
         >
           <Typography>${drink ? drink.cost : ""}</Typography>
+          <Grid container spacing={2}>
+            {ingredientItem}
+          </Grid>
           <TextField
             label="Amount"
             type="number"
