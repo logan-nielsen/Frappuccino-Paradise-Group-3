@@ -1,22 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, Grid, TextField, Typography } from '@mui/material';
-import SelectDrink from '../components/SelectDrink';
-import Box from '@mui/material/Box';
-import Stepper from '@mui/material/Stepper';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
-import SelectAddOns from '../components/SelectAddOns';
 import { Stack } from '@mui/system';
-
-const steps = ['Select Drink', 'Add Ons'];
 
 export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   const [amount, setAmount] = useState(1);
   const [ingredients, setIngredients] = useState([]);
 
   useEffect(() => {
-    fetch('api/getingredients')
+    fetch('api/getingredients/')
       .then(response => response.json())
       .then(allIngredients => {
         allIngredients.forEach(element => {
