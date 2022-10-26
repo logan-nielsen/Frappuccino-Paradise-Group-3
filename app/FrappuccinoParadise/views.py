@@ -8,6 +8,7 @@ from django.contrib.auth.models import User, Group
 from djmoney.money import Money
 
 from FrappuccinoParadise.models import Drink, Order
+from app.FrappuccinoParadise.models import Ingredient
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -34,19 +35,42 @@ def get_menu(request):
 def place_order(request):
     error = None
     try:
+        user = request.user
+        manager = User.objects.get(groups=3)
         order = json.loads(request.body.decode('utf-8'))
         cost = 0
+        ingredients = {}
         for drink in order:
             cost += drink.cost
-        o = Order(customerName=request.user.username,cost=cost)
+            for ingredient in drink.ingredients.all():
+                if ingredient not in ingredients:
+                    ingredients.update({ingredient:1})
+                else:
+                    ingredients[ingredient] += 1
+        o = Order(customerName=user.username,cost=cost)
         for drink in order:
             o.order.add(Drink.objects.get(id=drink.id))
         #TODO: add addons?
-        #TODO: check inventory
-        #TODO: check account balance
-        #TODO: update inventory
-        #TODO: transfer funds
-        o.save()
+
+        # Check inventory
+        for ingredient in ingredients:
+            if Ingredient.objects.get(name=ingredient).amountPurchased < ingredients[ingredient]:
+                error = "Insufficient inventory"
+        # Check account balance
+        if user.account.credit.amount < cost:
+            error = "Insufficient credit"
+        if not error:
+            # Update inventory
+            for ingredient in ingredients:
+                i = Ingredient.objects.get(name=ingredient)
+                i.amountPurchased -= ingredients[ingredient]
+                i.save()
+            # Transfer funds
+            user.account.credit.amount -= cost
+            user.save()
+            manager.account.credit.amount += cost
+            manager.save()
+            o.save()
     except:
         error = "Error placing order"
     return JsonResponse({'error': error})
