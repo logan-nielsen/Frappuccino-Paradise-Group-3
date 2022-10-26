@@ -3,27 +3,37 @@ import { Dialog, DialogContent, DialogTitle, Grid, TextField, Typography } from 
 import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
 
-let ingredientsInitialized = false;
 let costInitialized = false;
-let extraIngredients;
-let recipe;
+let addOnsInitialized = false;
 
 export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   const [amount, setAmount] = useState(1);
-  const [ingredients, setIngredients] = useState([]);
+  const [addOns, setAddOns] = useState([]);
   const [cost, setCost] = useState();
 
   useEffect(() => {
     fetch('api/getingredients/')
       .then(response => response.json())
-      .then(allIngredients => {
-        allIngredients.forEach(element => {
+      .then(ingredients => {
+        ingredients.forEach(element => {
           element.number = 0;
         });
 
-        setIngredients(allIngredients)
+        setAddOns(ingredients)
       })
   }, []);
+
+  useEffect(() => {
+    if (!addOnsInitialized && addOns.length > 0) {
+      addOnsInitialized = true;
+      let addOnsCopy = structuredClone(addOns);
+      addOnsCopy.forEach(element => {
+        element.number = 0;
+      });
+
+      setAddOns(addOnsCopy);
+    }
+  }, [open, addOns])
 
   useEffect(() => {
     if (!costInitialized && drink) {
@@ -33,57 +43,22 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   }, [drink]);
 
   useEffect(() => {
-    if (ingredients.length > 0 && recipe) {
-      extraIngredients = structuredClone(ingredients)
-  
-      let costToAdd = 0;
-      extraIngredients.forEach(ingredient => {
-        recipe.forEach(recipeIngredient => {
-          if (recipeIngredient.ingredient_id === ingredient.id) {
-            ingredient.number -= recipeIngredient.number;
-            if (ingredient.number < 0) {
-              ingredient.number = 0;
-            }
-          }
-        })
-
-        if (ingredient.number > 0) {
-          costToAdd += ingredient.cost * ingredient.number;
+    if (drink) {
+      let addedCost = 0;
+      addOns.forEach(element => {
+        if (element.number > 0) {
+          addedCost += parseFloat(element.number) * parseFloat(element.cost);
         }
-      })
-
-      setCost(parseFloat(drink.cost) + parseFloat(costToAdd));
+      });
+  
+      setCost(parseFloat(drink.cost) + addedCost);
     }
-  }, [ingredients, recipe])
-
-  useEffect(() => {
-    if (!ingredientsInitialized && drink && ingredients.length > 0) {
-      ingredientsInitialized = true;
-      
-      fetch(`api/getrecipe/?id=${drink.id}`)
-        .then(response => response.json())
-        .then(json => {
-          recipe = json;
-          let ingredientsCopy = structuredClone(ingredients)
-
-          ingredientsCopy.forEach(ingredient => {
-            ingredient.number = 0;
-            recipe.forEach(recipeIngredient => {
-              if (recipeIngredient.ingredient_id === ingredient.id) {
-                ingredient.number = parseInt(recipeIngredient.number);
-              }
-            })
-          })
-
-          setIngredients(ingredientsCopy)
-        })
-    }
-  }, [drink, ingredients])
+  }, [addOns, drink])
 
   function save() {
     addDrinkOrder({
       drink: drink,
-      extraIngredients: extraIngredients,
+      addOns: addOns,
       amount: amount,
     })
 
@@ -93,16 +68,16 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   function handleClose() {
     setOpen(false);
     setAmount(1);
-    ingredientsInitialized = false;
     costInitialized = false;
+    addOnsInitialized = false;
   }
 
-  function setIngredientNumber(index, newNumber) {
-    let newIngredients = [...ingredients];
-    let ingredient = {...ingredients[index]};
-    ingredient.number = newNumber;
-    newIngredients[index] = ingredient
-    setIngredients(newIngredients);
+  function setAddOnsNumber(index, newNumber) {
+    let newAddOns = [...addOns];
+    let addOn = {...addOns[index]};
+    addOn.number = newNumber;
+    newAddOns[index] = addOn
+    setAddOns(newAddOns);
   }
 
   function handleAmountInput(event) {
@@ -112,20 +87,20 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
 		}
   }
 
-  function handleIngredientInput(event, index) {
+  function handleAddOnInput(event, index) {
     let value = event.target.value
     if (isPositiveInteger(value) && parseInt(value) >= 0) {
-      setIngredientNumber(index, value);
+      setAddOnsNumber(index, value);
     }
   }
 
-  const ingredientItem = ingredients.map((ingredient, index) => 
+  const addOnItem = addOns.map((addOn, index) => 
     <Grid item xs={6} key={index}>
       <TextField
-        label={ingredient.name}
+        label={addOn.name}
         type="number"
-        value={ingredient.number}
-        onChange={event => handleIngredientInput(event, index)}
+        value={addOn.number}
+        onChange={event => handleAddOnInput(event, index)}
         sx={{ marginTop: "10px" }}
       />
     </Grid> 
@@ -151,7 +126,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
         >
           <Typography>${ Number(cost).toFixed(2) }</Typography>
           <Grid container spacing={2}>
-            {ingredientItem}
+            {addOnItem}
           </Grid>
           <TextField
             label="Amount"

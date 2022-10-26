@@ -19,6 +19,9 @@ def is_manager(user):
 
 def api(request):
     return JsonResponse({'test': True})
+
+def get_manager():
+    return User.objects.get(groups=3)
     
 @login_required
 def index(request):
@@ -50,6 +53,8 @@ def get_ingredients(request):
 def place_order(request):
     error = None
     # try:
+    user = request.user
+    manager = get_manager()
     order = json.loads(request.POST['order'])
     
     cost = 0
