@@ -1,20 +1,20 @@
 from datetime import datetime
 import json
-from FrappuccinoParadise.models import Account
+from FrappuccinoParadise.models import Account, Drink, Order, Ingredient
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
 
-from FrappuccinoParadise.models import Drink, Order
-from app.FrappuccinoParadise.models import Ingredient
-
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
 
 def is_manager(user):
     return user.groups.filter(name="Managers").exists()
+
+def get_manager():
+    return User.objects.get(groups=3)
 
 def api(request):
     return JsonResponse({'test': True})
@@ -36,7 +36,7 @@ def place_order(request):
     error = None
     try:
         user = request.user
-        manager = User.objects.get(groups=3)
+        manager = get_manager()
         order = json.loads(request.body.decode('utf-8'))
         cost = 0
         ingredients = {}
