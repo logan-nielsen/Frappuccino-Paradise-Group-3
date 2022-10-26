@@ -4,10 +4,14 @@ import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
 
 let ingredientsInitialized = false;
+let costInitialized = false;
+let extraIngredients;
+let recipe;
 
 export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   const [amount, setAmount] = useState(1);
   const [ingredients, setIngredients] = useState([]);
+  const [cost, setCost] = useState();
 
   useEffect(() => {
     fetch('api/getingredients/')
@@ -22,17 +26,51 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   }, []);
 
   useEffect(() => {
-    if (!ingredientsInitialized && drink && ingredients.length !== 0) {
+    if (!costInitialized && drink) {
+      costInitialized = true;
+      setCost(drink.cost);
+    }
+  }, [drink]);
+
+  useEffect(() => {
+    if (ingredients.length > 0 && recipe) {
+      extraIngredients = structuredClone(ingredients)
+  
+      let costToAdd = 0;
+      extraIngredients.forEach(ingredient => {
+        recipe.forEach(recipeIngredient => {
+          if (recipeIngredient.ingredient_id === ingredient.id) {
+            ingredient.number -= recipeIngredient.number;
+            if (ingredient.number < 0) {
+              ingredient.number = 0;
+            }
+          }
+        })
+
+        if (ingredient.number > 0) {
+          costToAdd += ingredient.cost * ingredient.number;
+        }
+      })
+
+      setCost(parseFloat(drink.cost) + parseFloat(costToAdd));
+    }
+  }, [ingredients, recipe])
+
+  useEffect(() => {
+    if (!ingredientsInitialized && drink && ingredients.length > 0) {
       ingredientsInitialized = true;
+      
       fetch(`api/getrecipe/?id=${drink.id}`)
         .then(response => response.json())
         .then(json => {
+          recipe = json;
           let ingredientsCopy = structuredClone(ingredients)
 
           ingredientsCopy.forEach(ingredient => {
-            json.forEach(recipeIngredient => {
+            ingredient.number = 0;
+            recipe.forEach(recipeIngredient => {
               if (recipeIngredient.ingredient_id === ingredient.id) {
-                ingredient.number = recipeIngredient.number;
+                ingredient.number = parseInt(recipeIngredient.number);
               }
             })
           })
@@ -45,7 +83,8 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   function save() {
     addDrinkOrder({
       drink: drink,
-      amount, amount
+      extraIngredients: extraIngredients,
+      amount: amount,
     })
 
     handleClose();
@@ -55,6 +94,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
     setOpen(false);
     setAmount(1);
     ingredientsInitialized = false;
+    costInitialized = false;
   }
 
   function setIngredientNumber(index, newNumber) {
@@ -109,7 +149,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
           autoComplete="false" 
           sx={{ width: '100%' }}
         >
-          <Typography>${drink ? drink.cost : ""}</Typography>
+          <Typography>${ Number(cost).toFixed(2) }</Typography>
           <Grid container spacing={2}>
             {ingredientItem}
           </Grid>

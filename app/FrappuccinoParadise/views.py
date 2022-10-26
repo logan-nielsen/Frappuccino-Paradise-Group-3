@@ -49,28 +49,28 @@ def get_ingredients(request):
 @login_required
 def place_order(request):
     error = None
-    try:
-        order = json.loads(request.POST['order'])
-        
-        cost = 0
-        for item in order:
-            cost += float(item['drink']['cost'])
-        
-        o = Order(customerName=request.user.username, cost=cost)
-        o.save()
+    # try:
+    order = json.loads(request.POST['order'])
+    
+    cost = 0
+    for item in order:
+        cost += float(item['drink']['cost'])
+    
+    o = Order(customerName=request.user.username, cost=cost)
+    o.save()
 
-        for item in order:
-            o.order.add(Drink.objects.get(pk=item['drink']['id']))
-        o.save()
+    for item in order:
+        o.order.add(Drink.objects.get(pk=item['drink']['id']))
+    o.save()
 
-        #TODO: add addons?
-        #TODO: check inventory
-        #TODO: check account balance
-        #TODO: update inventory
-        #TODO: transfer funds
+    #TODO: add addons?
+    #TODO: check inventory
+    #TODO: check account balance
+    #TODO: update inventory
+    #TODO: transfer funds
 
-    except Exception as e:
-        error = "Error placing order"
+    # except Exception as e:
+    #     error = "Error placing order"
     return JsonResponse({'error': error})
 
 # Get list of orders
