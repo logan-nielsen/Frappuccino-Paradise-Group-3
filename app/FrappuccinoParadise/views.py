@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
+from django.core import serializers
 
 from FrappuccinoParadise.models import Drink, Order, Ingredient
 
@@ -28,6 +29,14 @@ def index(request):
 @login_required
 def get_menu(request):
     return JsonResponse(list(Drink.objects.values()), safe=False)
+
+# Get ingredients required to make a drink
+# Returns a list of IngredientItem objects
+@login_required
+def get_recipe(request):
+    drink = Drink.objects.get(pk=request.GET['id'])
+    ingredients = list(drink.ingredientitem_set.values())
+    return JsonResponse(list(ingredients), safe=False)
 
 # Get menu items
 # Returns a list of drink objects

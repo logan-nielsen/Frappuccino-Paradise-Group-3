@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogTitle, Grid, TextField, Typography } from 
 import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
 
+let ingredientsInitialized = false;
+
 export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   const [amount, setAmount] = useState(1);
   const [ingredients, setIngredients] = useState([]);
@@ -19,6 +21,27 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
       })
   }, []);
 
+  useEffect(() => {
+    if (!ingredientsInitialized && drink && ingredients.length !== 0) {
+      ingredientsInitialized = true;
+      fetch(`api/getrecipe/?id=${drink.id}`)
+        .then(response => response.json())
+        .then(json => {
+          let ingredientsCopy = structuredClone(ingredients)
+
+          ingredientsCopy.forEach(ingredient => {
+            json.forEach(recipeIngredient => {
+              if (recipeIngredient.ingredient_id === ingredient.id) {
+                ingredient.number = recipeIngredient.number;
+              }
+            })
+          })
+
+          setIngredients(ingredientsCopy)
+        })
+    }
+  }, [drink, ingredients])
+
   function save() {
     addDrinkOrder({
       drink: drink,
@@ -31,6 +54,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   function handleClose() {
     setOpen(false);
     setAmount(1);
+    ingredientsInitialized = false;
   }
 
   function setIngredientNumber(index, newNumber) {
