@@ -1,7 +1,6 @@
 from datetime import datetime
 import json
 from msilib.schema import Error
-from FrappuccinoParadise.models import Account
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
@@ -9,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from djmoney.money import Money
 from django.core import serializers
 
-from FrappuccinoParadise.models import Drink, Order, Ingredient
+from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -53,7 +52,6 @@ def get_ingredients(request):
 def place_order(request):
     error = None
     # try:
-    user = request.user
     manager = get_manager()
     order = json.loads(request.POST['order'])
     
@@ -65,7 +63,20 @@ def place_order(request):
     o.save()
 
     for item in order:
-        o.order.add(Drink.objects.get(pk=item['drink']['id']))
+        # o.order.add(Drink.objects.get(pk=item['drink']['id']))
+        orderItem = OrderItem(
+            order = o,
+            drink = Drink.objects.get(pk=item['drink']['id']),
+            number = item['amount']
+        )
+        orderItem.save()
+
+        for addOn in item['addOns']:
+            orderItem.addon_set.create(
+                ingredient = Ingredient.objects.get(pk=addOn['id']),
+                number = addOn['id'],        
+            )
+            
     o.save()
 
     #TODO: add addons?

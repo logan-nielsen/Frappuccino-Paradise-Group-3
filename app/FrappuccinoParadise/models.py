@@ -50,3 +50,8 @@ class OrderItem(models.Model):
     drink = models.ForeignKey(Drink, on_delete=models.CASCADE)
     number = models.IntegerField(default=1)
 
+
+class AddOn(models.Model):
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    number = models.IntegerField(default=1)
+    orderItem = models.ForeignKey(OrderItem, on_delete=models.CASCADE)
