@@ -3,7 +3,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import DrinkDialog from '../components/DrinkDialog';
-import { Button, Fab, Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import DrinkGridItem from '../components/DrinkGridItem';
 import { Stack } from '@mui/system';
 import ConfirmOrderDialog from '../components/ConfirmOrderDialog';

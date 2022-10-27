@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
 
@@ -16,8 +16,17 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder })
     handleClose()
   }
 
-  const orderItems = order.map((item, index) => 
-    <Typography key={index}>{ item.drink.name }: { item.amount }</Typography>
+  const orderItems = order.map((item, index) =>
+    <Box key={index}>
+      <Typography>{ item.drink.name }: { item.amount }</Typography>
+
+      {/* List add ons dynamically */}
+      {item.addOns.map((addOn, addOnIndex) => 
+        <div key={addOnIndex} className='indented'>
+          <Typography>{addOn.name}: {addOn.number}</Typography>
+        </div>
+      )}
+    </Box>
   )
 
   return (

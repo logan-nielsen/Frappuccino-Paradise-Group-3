@@ -90,14 +90,30 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
 
   function handleAmountInput(event) {
     let value = event.target.value
-		if (isPositiveInteger(value) && parseInt(value) > 0) {
-		  setAmount(parseFloat(value))
+
+    if (!value) {
+      setAmount("");
+    }
+		else if (isPositiveInteger(value) && parseInt(value) > 0) {
+      if (value.length > 2 && value.startsWith('0')) {
+        value = value.slice(1);
+      }
+
+		  setAmount(value);
 		}
   }
 
   function handleAddOnInput(event, index) {
-    let value = event.target.value
-    if (isPositiveInteger(value) && parseInt(value) >= 0) {
+    let value = event.target.value;
+    
+    if (!value) {
+      setAddOnsNumber(index, "");
+    }
+    else if (isPositiveInteger(value) && parseInt(value) >= 0) {
+      if (value.length > 1 && value.startsWith('0')) {
+        value = value.slice(1);
+      }
+      
       setAddOnsNumber(index, value);
     }
   }
@@ -108,6 +124,8 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
         label={addOn.name}
         type="number"
         value={addOn.number}
+        required
+        error={addOn.number === ""}
         onChange={event => handleAddOnInput(event, index)}
         sx={{ marginTop: "10px" }}
       />
@@ -128,14 +146,19 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
         <Stack 
           spacing={2}
           component="form" 
-          noValidate 
           autoComplete="false" 
+          onSubmit={save}
           sx={{ width: '100%' }}
         >
           <Typography>${ Number(cost).toFixed(2) }</Typography>
-          <Grid container spacing={2}>
-            {addOnItem}
-          </Grid>
+
+          <div>
+            <Typography variant="subtitle1" gutterBottom>Add-Ons:</Typography>
+            <Grid container spacing={2}>
+              {addOnItem}
+            </Grid>
+          </div>
+
           <TextField
             label="Amount"
             type="number"
@@ -143,10 +166,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
             onChange={handleAmountInput}
             sx={{ marginTop: "10px" }}
           />
-          <Button
-            onClick={save}
-            variant="contained"
-          >
+          <Button variant="contained">
             Submit
           </Button>
         </Stack>
@@ -157,5 +177,5 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
 }
 
 function isPositiveInteger(value) {
-  return /^\d*$/.test(value);
+  return /^[\d|e]*$/.test(value);
 }
