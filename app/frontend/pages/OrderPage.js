@@ -24,10 +24,6 @@ export default function OrderPage() {
         setDrinks(allDrinks)
       })
   }, [])
-
-  useEffect(() => {
-    console.log(order)
-  }, [order])
   
   function addDrinkOrder(drinkOrder) {
     setOrder([...order, drinkOrder])
