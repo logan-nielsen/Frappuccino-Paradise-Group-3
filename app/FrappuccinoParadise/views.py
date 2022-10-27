@@ -40,7 +40,7 @@ def get_menu(request):
 def get_recipe(request):
     drink = Drink.objects.get(pk=request.GET['id'])
     ingredients = list(drink.ingredientitem_set.values())
-    return JsonResponse(list(ingredients), safe=False)
+    return JsonResponse(ingredients, safe=False)
 
 # Get menu items
 # Returns a list of drink objects
@@ -115,8 +115,24 @@ def place_order(request):
 # Get list of orders
 # Returns a list of orders
 @login_required
+@user_passes_test(is_employee)
 def get_orders(request):
-    return JsonResponse(Order.objects.all().values())
+    orders = Order.objects.filter(isDelivered=False)
+    ordersList = list(orders.values())
+
+    for i in range(len(orders)):
+        orderItems = orders[i].orderitem_set.all()
+        orderItemsList = list(orderItems.values())
+
+        for j in range(len(orderItems)):
+            addOns = orderItems[j].addon_set.all()
+            addOnsList = list(addOns.values())
+            orderItemsList[j]['addons'] = addOnsList
+
+        ordersList[i]['order_items'] = orderItemsList
+
+
+    return JsonResponse(ordersList, safe=False)
 
 # Changes status of order
 # Doesn't return anything besides errors
