@@ -43,23 +43,31 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   }, [drink]);
 
   useEffect(() => {
-    if (drink) {
+    if (drink && amount) {
       let addedCost = 0;
       addOns.forEach(element => {
         if (element.number > 0) {
           addedCost += parseFloat(element.number) * parseFloat(element.cost);
         }
       });
-  
-      setCost(parseFloat(drink.cost) + addedCost);
+
+      setCost((parseFloat(drink.cost) + addedCost) * amount);
     }
-  }, [addOns, drink])
+  }, [addOns, drink, amount])
 
   function save() {
+    let filteredAddOns = [];
+    addOns.forEach(element => {
+      if (element.number > 0) {
+        filteredAddOns.push(element);
+      }
+    })
+
     addDrinkOrder({
       drink: drink,
-      addOns: addOns,
+      addOns: filteredAddOns,
       amount: amount,
+      cost: cost,
     })
 
     handleClose();
@@ -83,7 +91,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
   function handleAmountInput(event) {
     let value = event.target.value
 		if (isPositiveInteger(value) && parseInt(value) > 0) {
-		  setAmount(value)
+		  setAmount(parseFloat(value))
 		}
   }
 

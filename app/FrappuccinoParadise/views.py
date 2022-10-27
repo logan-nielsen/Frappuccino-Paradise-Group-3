@@ -59,7 +59,7 @@ def place_order(request):
     
     cost = 0
     for item in order:
-        cost += float(item['drink']['cost'])
+        cost += float(item['cost'])
     
     o = Order(customerName=request.user.username, cost=cost)
     o.save()
