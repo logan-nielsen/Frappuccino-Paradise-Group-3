@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
-from msilib.schema import Error
-from django.http import HttpResponse, JsonResponse
+from FrappuccinoParadise.models import Account, TimeCard
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
@@ -179,6 +179,43 @@ def get_unpaid(request):
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error retrieving shifts for this user"
+    return JsonResponse(response)
+
+# Uses manager's funds to pay TimeCards specified in 'shift_ids'
+# Return a list of 'paid' TimeCards, a list 'unpaid' that couldn't be paid, and a list of 'errors'
+@login_required
+@user_passes_test(is_manager)
+def pay(request):
+    # This should be a list of TimeCard ids - change it here or in the frontend as necessary
+    shifts = request.POST['shift_ids']
+    hourly_wage = float(request.POST['hourly_wage'])
+    response = {
+        'paid': list(),
+        'unpaid': list(),
+        'errors': set(),
+    }
+    for shift_id in shifts:
+        try:
+            shift = TimeCard.objects.get(id=shift_id)
+            earnings = Money(shift.hours * hourly_wage, 'USD')
+            if not shift.paid:
+                if request.user.account.credit >= earnings:
+                    request.user.account.credit -= earnings
+                    shift.employee.credit += earnings
+                    shift.paid = True
+                    response['paid'].append(shift_id)
+                else:
+                    response['errors'].add("Insufficient funds")
+                    response['unpaid'].append(shift_id)
+            else:
+                response['errors'].add(f"TimeCard {shift_id} has already been paid")
+                response['paid'].append(shift_id)
+        except(TimeCard.DoesNotExist):
+            response['errors'].add(f"TimeCard {shift_id} does not exist\n")
+            response['unpaid'].append(shift_id)
+        except:
+            response['errors'].add("Error paying employee(s)\n")
+            response['unpaid'].append(shift_id)
     return JsonResponse(response)
 
 # Elevate user to barista status
