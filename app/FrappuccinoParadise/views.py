@@ -1,11 +1,14 @@
 from datetime import datetime
 import json
-from FrappuccinoParadise.models import Account, Drink, Order, Ingredient
-from django.http import JsonResponse
+from msilib.schema import Error
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
+from django.core import serializers
+
+from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -18,6 +21,9 @@ def get_manager():
 
 def api(request):
     return JsonResponse({'test': True})
+
+def get_manager():
+    return User.objects.get(groups=3)
     
 @login_required
 def index(request):
@@ -27,52 +33,63 @@ def index(request):
 # Returns a list of drink objects
 @login_required
 def get_menu(request):
-    return JsonResponse(Drink.objects.all().values())
+    return JsonResponse(list(Drink.objects.values()), safe=False)
+
+# Get ingredients required to make a drink
+# Returns a list of IngredientItem objects
+@login_required
+def get_recipe(request):
+    drink = Drink.objects.get(pk=request.GET['id'])
+    ingredients = list(drink.ingredientitem_set.values())
+    return JsonResponse(list(ingredients), safe=False)
+
+# Get menu items
+# Returns a list of drink objects
+@login_required
+def get_ingredients(request):
+    return JsonResponse(list(Ingredient.objects.values()), safe=False)
 
 # Place order
 # Doesn't return anything besides errors
 @login_required
 def place_order(request):
     error = None
-    try:
-        user = request.user
-        manager = get_manager()
-        order = json.loads(request.body.decode('utf-8'))
-        cost = 0
-        ingredients = {}
-        for drink in order:
-            cost += drink.cost
-            for ingredient in drink.ingredients.all():
-                if ingredient not in ingredients:
-                    ingredients.update({ingredient:1})
-                else:
-                    ingredients[ingredient] += 1
-        o = Order(customerName=user.username,cost=cost)
-        for drink in order:
-            o.order.add(Drink.objects.get(id=drink.id))
-        #TODO: add addons?
+    # try:
+    manager = get_manager()
+    order = json.loads(request.POST['order'])
+    
+    cost = 0
+    for item in order:
+        cost += float(item['cost'])
+    
+    o = Order(customerName=request.user.username, cost=cost)
+    o.save()
 
-        # Check inventory
-        for ingredient in ingredients:
-            if Ingredient.objects.get(name=ingredient).amountPurchased < ingredients[ingredient]:
-                error = "Insufficient inventory"
-        # Check account balance
-        if user.account.credit.amount < cost:
-            error = "Insufficient credit"
-        if not error:
-            # Update inventory
-            for ingredient in ingredients:
-                i = Ingredient.objects.get(name=ingredient)
-                i.amountPurchased -= ingredients[ingredient]
-                i.save()
-            # Transfer funds
-            user.account.credit.amount -= cost
-            user.save()
-            manager.account.credit.amount += cost
-            manager.save()
-            o.save()
-    except:
-        error = "Error placing order"
+    for item in order:
+        # o.order.add(Drink.objects.get(pk=item['drink']['id']))
+        orderItem = OrderItem(
+            order = o,
+            drink = Drink.objects.get(pk=item['drink']['id']),
+            number = item['amount']
+        )
+        orderItem.save()
+
+        for addOn in item['addOns']:
+            orderItem.addon_set.create(
+                ingredient = Ingredient.objects.get(pk=addOn['id']),
+                number = addOn['id'],        
+            )
+            
+    o.save()
+
+    #TODO: add addons?
+    #TODO: check inventory
+    #TODO: check account balance
+    #TODO: update inventory
+    #TODO: transfer funds
+
+    # except Exception as e:
+    #     error = "Error placing order"
     return JsonResponse({'error': error})
 
 # Get list of orders
