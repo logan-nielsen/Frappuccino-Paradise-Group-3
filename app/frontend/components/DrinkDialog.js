@@ -55,7 +55,8 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
     }
   }, [addOns, drink, amount])
 
-  function save() {
+  function save(e) {
+    e.preventDefault();
     let filteredAddOns = [];
     addOns.forEach(element => {
       if (element.number > 0) {
@@ -146,7 +147,6 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
         <Stack 
           spacing={2}
           component="form" 
-          autoComplete="false" 
           onSubmit={save}
           sx={{ width: '100%' }}
         >
@@ -167,7 +167,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
             onChange={handleAmountInput}
             sx={{ marginTop: "10px" }}
           />
-          <Button variant="contained">
+          <Button type="submit" variant="contained">
             Submit
           </Button>
         </Stack>
