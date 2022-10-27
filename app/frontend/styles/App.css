@@ -21,3 +21,7 @@ nav a, a {
     height: 100px;
     text-align: center;
 }
+
+.indented {
+    margin-left: 15px;
+}
