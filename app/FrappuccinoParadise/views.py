@@ -6,8 +6,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
+from django.core import serializers
 
-from FrappuccinoParadise.models import Drink, Order
+from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -17,6 +18,9 @@ def is_manager(user):
 
 def api(request):
     return JsonResponse({'test': True})
+
+def get_manager():
+    return User.objects.get(groups=3)
     
 @login_required
 def index(request):
@@ -26,7 +30,21 @@ def index(request):
 # Returns a list of drink objects
 @login_required
 def get_menu(request):
-    return JsonResponse(Drink.objects.all().values())
+    return JsonResponse(list(Drink.objects.values()), safe=False)
+
+# Get ingredients required to make a drink
+# Returns a list of IngredientItem objects
+@login_required
+def get_recipe(request):
+    drink = Drink.objects.get(pk=request.GET['id'])
+    ingredients = list(drink.ingredientitem_set.values())
+    return JsonResponse(list(ingredients), safe=False)
+
+# Get menu items
+# Returns a list of drink objects
+@login_required
+def get_ingredients(request):
+    return JsonResponse(list(Ingredient.objects.values()), safe=False)
 
 # Place order
 # Doesn't return anything besides errors
@@ -34,21 +52,40 @@ def get_menu(request):
 def place_order(request):
     error = None
     try:
-        order = json.loads(request.body.decode('utf-8'))
+        order = json.loads(request.POST['order'])
+        
         cost = 0
-        for drink in order:
-            cost += drink.cost
-        o = Order(customerName=request.user.username,cost=cost)
-        for drink in order:
-            o.order.add(Drink.objects.get(id=drink.id))
+        for item in order:
+            cost += float(item['cost'])
+        
+        o = Order(customerName=request.user.username, cost=cost)
+        o.save()
+
+        for item in order:
+            orderItem = OrderItem(
+                order = o,
+                drink = Drink.objects.get(pk=item['drink']['id']),
+                number = item['amount']
+            )
+            orderItem.save()
+
+            for addOn in item['addOns']:
+                orderItem.addon_set.create(
+                    ingredient = Ingredient.objects.get(pk=addOn['id']),
+                    number = addOn['id'],        
+                )
+
+        o.save()
+
         #TODO: add addons?
         #TODO: check inventory
         #TODO: check account balance
         #TODO: update inventory
         #TODO: transfer funds
-        o.save()
-    except:
+
+    except Exception as e:
         error = "Error placing order"
+        
     return JsonResponse({'error': error})
 
 # Get list of orders
