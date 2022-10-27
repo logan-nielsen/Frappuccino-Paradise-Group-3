@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
-from django.core import serializers
 
 from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account
 
@@ -15,6 +14,9 @@ def is_employee(user):
 
 def is_manager(user):
     return user.groups.filter(name="Managers").exists()
+
+def get_manager():
+    return User.objects.get(groups=3)
 
 def api(request):
     return JsonResponse({'test': True})
@@ -52,40 +54,62 @@ def get_ingredients(request):
 def place_order(request):
     error = None
     try:
+        user = request.user
+        manager = get_manager()
         order = json.loads(request.POST['order'])
-        
+        ingredients = {}
         cost = 0
         for item in order:
             cost += float(item['cost'])
-        
-        o = Order(customerName=request.user.username, cost=cost)
-        o.save()
-
-        for item in order:
-            orderItem = OrderItem(
-                order = o,
-                drink = Drink.objects.get(pk=item['drink']['id']),
-                number = item['amount']
-            )
-            orderItem.save()
-
-            for addOn in item['addOns']:
-                orderItem.addon_set.create(
-                    ingredient = Ingredient.objects.get(pk=addOn['id']),
-                    number = addOn['id'],        
+            drink = Drink.objects.get(pk=item['drink']['id'])
+            # Get required ingredients
+            for ingredientItem in drink.ingredientitem_set.all():
+                if ingredientItem.ingredient.name not in ingredients:
+                    ingredients.update({ingredientItem.ingredient.name: ingredientItem.number})
+                else:
+                    ingredients[ingredientItem.ingredient.name] += ingredientItem.number
+            # Add addOns
+            for ingredientItem in item['addOns']:
+                if ingredientItem['name'] not in ingredients:
+                    ingredients.update({ingredientItem['name']: int(ingredientItem['number'])})
+                else:
+                    ingredients[ingredientItem['name']] += int(ingredientItem['number'])
+        # Check inventory
+        for ingredientItem in ingredients:
+            if Ingredient.objects.get(name=ingredientItem).amountPurchased < ingredients[ingredientItem]:
+                error = "Insufficient inventory"
+        # Check account balance
+        if user.account.credit.amount < cost:
+            error = "Insufficient credit"
+        if not error:
+            # Update inventory
+            for ingredient in ingredients:
+                i = Ingredient.objects.get(name=ingredient)
+                i.amountPurchased -= ingredients[ingredient]
+                i.save()
+            # Transfer funds
+            user.account.credit -= Money(cost, 'USD')
+            user.account.save()
+            manager.account.credit += Money(cost, 'USD')
+            manager.account.save()
+            # Create order
+            o = Order(customerName=user.username, cost=cost)
+            o.save()
+            for item in order:
+                orderItem = OrderItem(
+                    order = o,
+                    drink = Drink.objects.get(pk=item['drink']['id']),
+                    number = item['amount']
                 )
+                orderItem.save()
 
-        o.save()
-
-        #TODO: add addons?
-        #TODO: check inventory
-        #TODO: check account balance
-        #TODO: update inventory
-        #TODO: transfer funds
-
+                for addOn in item['addOns']:
+                    orderItem.addon_set.create(
+                        ingredient = Ingredient.objects.get(pk=addOn['id']),
+                        number = addOn['id'],        
+                    )
     except Exception as e:
-        error = "Error placing order"
-        
+        error = str(e)
     return JsonResponse({'error': error})
 
 # Get list of orders
