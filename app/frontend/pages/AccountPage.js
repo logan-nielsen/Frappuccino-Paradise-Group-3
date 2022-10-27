@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
 import { Alert, Box, Snackbar, Stack, TextField } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AddBalanceDialog from '../components/AddBalanceDialog';
-
-const theme = createTheme();
 
 export default function AccountPage() {
   const [name, setName] = useState()
@@ -100,86 +95,83 @@ export default function AccountPage() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main">
-        <CssBaseline />
-        <Box className='flex-container'>
-          <Stack className='separated-flex-item' spacing={2}>
-            <Typography component="h2" variant = "h3">Account</Typography>
-            <Typography variant="body1">Name: { name }</Typography>
-            <Typography variant="body1">Email: { email }</Typography>
-            <Typography variant="body1">Current Account Balance: ${ balance }</Typography>
+    <>
+    <Box className='flex-container'>
+      <Stack className='separated-flex-item' spacing={2}>
+        <Typography component="h2" variant = "h3">Account</Typography>
+        <Typography variant="body1">Name: { name }</Typography>
+        <Typography variant="body1">Email: { email }</Typography>
+        <Typography variant="body1">Current Account Balance: ${ balance }</Typography>
 
-            <Button
-              id="increase-balance-btn"
+        <Button
+          id="increase-balance-btn"
+          variant="contained"
+          onClick={() => setAddBalanceModalOpen(true)}
+          sx={{
+            maxWidth: "300px",
+            display: 'block', 
+            mt: 2,
+          }}
+        >
+          Increase Account Balance
+        </Button>
+      </Stack>
+
+      {/* Conditionally render the log hours section */}
+      {isEmployee && 
+        <Stack spacing={2}>
+          <Typography component="h2" variant = "h3">Log Hours</Typography>
+          <Box 
+            component="form"
+            onSubmit={submitPayroll}
+            width="100%"
+            sx={{ mt: 1 }}
+          >
+            <TextField 
+              id="add_hours" 
+              label="Hours"
+              name="hours"
+              placeholder='0'
+              value={hoursToAdd}
+              onChange={handleHoursInput}
+              required
+            />
+            <Button 
+              id="add-hours-btn"
               variant="contained"
-              onClick={() => setAddBalanceModalOpen(true)}
+              type="submit"
+              fullWidth
+              disabled={submitting}
               sx={{
-                maxWidth: "300px",
                 display: 'block', 
                 mt: 2,
               }}
-            >
-              Increase Account Balance
-            </Button>
-          </Stack>
+            >Add</Button>
+          </Box>
+        </Stack>
+      }
+    </Box>
 
-          {/* Conditionally render the log hours section */}
-          {isEmployee && 
-            <Stack spacing={2}>
-              <Typography component="h2" variant = "h3">Log Hours</Typography>
-              <Box 
-                component="form"
-                onSubmit={submitPayroll}
-                width="100%"
-                sx={{ mt: 1 }}
-              >
-                <TextField 
-                  id="add_hours" 
-                  label="Hours"
-                  name="hours"
-                  placeholder='0'
-                  value={hoursToAdd}
-                  onChange={handleHoursInput}
-                  required
-                />
-                <Button 
-                  id="add-hours-btn"
-                  variant="contained"
-                  type="submit"
-                  fullWidth
-                  disabled={submitting}
-                  sx={{
-                    display: 'block', 
-                    mt: 2,
-                  }}
-                >Add</Button>
-              </Box>
-            </Stack>
-          }
-        </Box>
+    <AddBalanceDialog 
+      open={addBalanceModalOpen} 
+      setOpen={setAddBalanceModalOpen} 
+      addBalance={addBalance}
+      newSnackbar={newSnackbar}
+    />
 
-        <AddBalanceDialog 
-          open={addBalanceModalOpen} 
-          setOpen={setAddBalanceModalOpen} 
-          addBalance={addBalance}
-          newSnackbar={newSnackbar}
-        />
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
-        >
-          <Alert 
-            onClose={handleSnackbarClose}
-            severity={ payrollError ? 'error' : 'success' }
-          >
-            { snackbarMessage }
-          </Alert>
-        </Snackbar>
-      </Container>
-    </ThemeProvider>
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={6000}
+      onClose={handleSnackbarClose}
+    >
+      <Alert 
+        onClose={handleSnackbarClose}
+        severity={ payrollError ? 'error' : 'success' }
+      >
+        { snackbarMessage }
+      </Alert>
+    </Snackbar>
+    </>
   )
 }
 
