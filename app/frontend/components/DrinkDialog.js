@@ -163,6 +163,7 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
             label="Amount"
             type="number"
             value={amount}
+            error={amount === ""}
             onChange={handleAmountInput}
             sx={{ marginTop: "10px" }}
           />
