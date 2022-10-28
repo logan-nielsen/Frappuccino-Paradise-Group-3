@@ -117,7 +117,7 @@ def place_order(request):
 @login_required
 @user_passes_test(is_employee)
 def get_orders(request):
-    orders = Order.objects.filter(isDelivered=False)
+    orders = Order.objects.filter(isDelivered=False).order_by('date', 'time')
     ordersList = list(orders.values())
 
     for i in range(len(orders)):
