@@ -6,7 +6,7 @@ export default function ManageOrderItem({ order, setReady, setDelivered }) {
 
   const orderItems = order.order_items.map((order, orderIndex) =>
     <li key={orderIndex}>
-      { order.drink_name }
+      {order.drink_name}: {order.number}
 
       {/* List Add Ons */}
       <ul>
