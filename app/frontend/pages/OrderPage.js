@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import DrinkDialog from '../components/DrinkDialog';
 import { Button, Grid } from '@mui/material';
 import DrinkGridItem from '../components/DrinkGridItem';
 import { Stack } from '@mui/system';
 import ConfirmOrderDialog from '../components/ConfirmOrderDialog';
-
-const theme = createTheme();
 
 export default function OrderPage() {
   const [drinkDialogOpen, setDrinkDialogOpen] = useState(false);
@@ -59,37 +54,33 @@ export default function OrderPage() {
   )
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main">
-        <CssBaseline />
+    <>
+    <Stack spacing={2}>
+      <Button 
+        variant="contained"
+        onClick={() => setOrderDialogOpen(true)}
+      >
+        Place Order
+      </Button>
+      <Grid container spacing={2}>
+        { drinkGridItems }
+      </Grid>
+    </Stack>
 
-        <Stack spacing={2}>
-          <Button 
-            variant="contained"
-            onClick={() => setOrderDialogOpen(true)}
-          >
-            Place Order
-          </Button>
-          <Grid container spacing={2}>
-            { drinkGridItems }
-          </Grid>
-        </Stack>
+    <DrinkDialog 
+      drink={selectedDrink}
+      addDrinkOrder={addDrinkOrder}
+      open={drinkDialogOpen} 
+      setOpen={setDrinkDialogOpen} 
+    />
 
-        <DrinkDialog 
-          drink={selectedDrink}
-          addDrinkOrder={addDrinkOrder}
-          open={drinkDialogOpen} 
-          setOpen={setDrinkDialogOpen} 
-        />
-
-        <ConfirmOrderDialog 
-          open={orderDialogOpen}
-          setOpen={setOrderDialogOpen}
-          order={order}
-          placeOrder={placeOrder}
-        />
-      </Container>
-    </ThemeProvider>
+    <ConfirmOrderDialog 
+      open={orderDialogOpen}
+      setOpen={setOrderDialogOpen}
+      order={order}
+      placeOrder={placeOrder}
+    />
+    </>
   );
 }
 
