@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -21,11 +21,19 @@ import Menu from '@mui/material/Menu';
 import { useNavigate } from 'react-router-dom';
 import { IconButton, ListItemText } from '@mui/material';
 
-
 const drawerWidth = 240;
 
 export default function PermanentDrawer(props) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [isEmployee, setIsEmployee] = useState(false)
+
+  useEffect(() => {
+    fetch('api/isemployee')
+      .then(response => response.json())
+      .then(json => {
+        setIsEmployee(json.is_employee)
+      })
+  }, [])
 
   const navigate = useNavigate();
   
@@ -125,14 +133,17 @@ export default function PermanentDrawer(props) {
             <ListItemText>Order</ListItemText>
           </ListItemButton>
         </ListItem>
-        <ListItem key="Manage Orders" disablePadding>
-          <ListItemButton onClick={() => navigate("app/manage-orders")}>
-            <ListItemIcon>
-              <CoffeeMakerIcon />
-            </ListItemIcon>
-            <ListItemText>Manage Orders</ListItemText>
-          </ListItemButton>
-        </ListItem>
+
+        {isEmployee && 
+          <ListItem key="Manage Orders" disablePadding>
+            <ListItemButton onClick={() => navigate("app/manage-orders")}>
+              <ListItemIcon>
+                <CoffeeMakerIcon />
+              </ListItemIcon>
+              <ListItemText>Manage Orders</ListItemText>
+            </ListItemButton>
+          </ListItem>
+        }
       </List>
     </Drawer>
     <Box
