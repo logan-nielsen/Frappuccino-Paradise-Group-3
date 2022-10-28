@@ -372,6 +372,10 @@ def user_is_employee(request):
       return JsonResponse({'is_employee': is_employee(request.user)})
 
 @login_required
+def user_is_manager(request):
+      return JsonResponse({'is_manager': is_manager(request.user)})
+
+@login_required
 @user_passes_test(is_employee)
 def set_order_ready(request):
     id = request.POST['order_id']
