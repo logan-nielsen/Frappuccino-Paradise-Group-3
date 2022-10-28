@@ -20,9 +20,6 @@ def get_manager():
 
 def api(request):
     return JsonResponse({'test': True})
-
-def get_manager():
-    return User.objects.get(groups=3)
     
 @login_required
 def index(request):
