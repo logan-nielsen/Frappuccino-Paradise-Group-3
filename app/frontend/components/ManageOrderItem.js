@@ -6,7 +6,7 @@ export default function ManageOrderItem({ order, setReady, setDelivered }) {
 
   const orderItems = order.order_items.map((order, orderIndex) =>
     <li key={orderIndex}>
-      { order.drink_name }
+      {order.drink_name}: {order.number}
 
       {/* List Add Ons */}
       <ul>
@@ -31,15 +31,17 @@ export default function ManageOrderItem({ order, setReady, setDelivered }) {
             </ul>
           </div>
 
-          <Button 
-            variant="contained" 
-            disabled={order.isReady}
-            onClick={() => setReady(order.id)}
-          >Mark as Ready</Button>
+          {order.isReady ?
           <Button 
             variant="contained" 
             onClick={() => setDelivered(order.id)}
           >Mark as Delivered</Button>
+          :
+          <Button 
+          variant="contained" 
+          onClick={() => setReady(order.id)}
+          >Mark as Ready</Button>
+          }
         </Stack>
       </CardContent>
     </Card>
