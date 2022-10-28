@@ -124,10 +124,20 @@ def get_orders(request):
         orderItems = orders[i].orderitem_set.all()
         orderItemsList = list(orderItems.values())
 
+        ordersList[i]['formatted_time'] = orders[i].time.strftime("%#I:%M %p")
+
         for j in range(len(orderItems)):
             addOns = orderItems[j].addon_set.all()
             addOnsList = list(addOns.values())
             orderItemsList[j]['addons'] = addOnsList
+
+            for k in range(len(addOnsList)):
+                addOn = addOnsList[k]
+                ingredient = Ingredient.objects.get(pk=addOns[k].ingredient_id)
+                addOn['ingredient_name'] = ingredient.name
+
+            drink = Drink.objects.get(pk=orderItems[j].drink_id)
+            orderItemsList[j]['drink_name'] = drink.name
 
         ordersList[i]['order_items'] = orderItemsList
 
@@ -360,3 +370,23 @@ def add_credit(request):
 @login_required
 def user_is_employee(request):
       return JsonResponse({'is_employee': is_employee(request.user)})
+
+@login_required
+@user_passes_test(is_employee)
+def set_order_ready(request):
+    id = request.POST['order_id']
+    order = Order.objects.get(pk=id)
+    order.isReady = True
+    order.save()
+
+    return JsonResponse({'error': None})
+
+@login_required
+@user_passes_test(is_employee)
+def set_order_delivered(request):
+    id = request.POST['order_id']
+    order = Order.objects.get(pk=id)
+    order.isDelivered = True
+    order.save()
+
+    return JsonResponse({'error': None})

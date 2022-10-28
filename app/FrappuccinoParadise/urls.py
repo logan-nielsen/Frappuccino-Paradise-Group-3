@@ -21,5 +21,7 @@ urlpatterns = [
   path("api/isemployee/", views.user_is_employee, name="user_is_employee"),
   path("api/ismanager/", views.is_employee, name="ismanager"),
   path("api/getrecipe/", views.get_recipe, name="get_recipe"),
+  path("api/setorderready/", views.set_order_ready, name="set_order_ready"),
+  path("api/setorderdelivered/", views.set_order_delivered, name="set_order_delivered"),
   re_path(r'^(?!api.*$).*', views.index, name='index'),
 ]
