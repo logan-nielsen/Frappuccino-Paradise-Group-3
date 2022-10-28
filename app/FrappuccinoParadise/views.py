@@ -103,7 +103,7 @@ def place_order(request):
                 for addOn in item['addOns']:
                     orderItem.addon_set.create(
                         ingredient = Ingredient.objects.get(pk=addOn['id']),
-                        number = addOn['id'],        
+                        number = addOn['number'],        
                     )
     except Exception as e:
         error = str(e)
