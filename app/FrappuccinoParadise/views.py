@@ -20,9 +20,6 @@ def get_manager():
 
 def api(request):
     return JsonResponse({'test': True})
-
-def get_manager():
-    return User.objects.get(groups=3)
     
 @login_required
 def index(request):
@@ -117,7 +114,7 @@ def place_order(request):
 @login_required
 @user_passes_test(is_employee)
 def get_orders(request):
-    orders = Order.objects.filter(isDelivered=False)
+    orders = Order.objects.filter(isDelivered=False).order_by('date', 'time')
     ordersList = list(orders.values())
 
     for i in range(len(orders)):
