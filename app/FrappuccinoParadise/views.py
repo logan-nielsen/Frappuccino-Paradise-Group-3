@@ -1,13 +1,14 @@
 from datetime import datetime
+from email import message
 import json
-from FrappuccinoParadise.models import Account, TimeCard
+from telnetlib import STATUS
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
 
-from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account
+from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -17,9 +18,6 @@ def is_manager(user):
 
 def get_manager():
     return User.objects.get(groups=3)
-
-def api(request):
-    return JsonResponse({'test': True})
     
 @login_required
 def index(request):
@@ -44,6 +42,28 @@ def get_recipe(request):
 @login_required
 def get_ingredients(request):
     return JsonResponse(list(Ingredient.objects.values()), safe=False)
+
+# Manger buys ingredients
+# Doesn't return anything besides errors
+@login_required
+@user_passes_test(is_manager)
+def buy_ingredients(request):
+    error = None
+    manager = request.user
+    cost = request.POST(['cost'])
+    ingredients = request.POST(['ingredients'])
+    try:
+        if manager.account.credit.amount < cost:
+            error = 'Insufficient funds'
+        else:
+            for ingredient in ingredients:
+                i = Ingredient.objects.get(name=ingredient)
+                i.amountPurchased += ingredients[ingredient]
+            manager.account.credit -= Money(cost, 'USD')
+            manager.account.save()
+    except:
+        error = 'Error buying ingredients'
+    return JsonResponse({'error': error}, status= 400 if error !='' else 200) # TODO: Don't return 400 if good
 
 # Place order
 # Doesn't return anything besides errors
@@ -106,7 +126,7 @@ def place_order(request):
                         number = addOn['number'],        
                     )
     except Exception as e:
-        error = str(e)
+        error = 'Error placing order'
     return JsonResponse({'error': error})
 
 # Get list of orders
@@ -140,22 +160,6 @@ def get_orders(request):
 
 
     return JsonResponse(ordersList, safe=False)
-
-# Changes status of order
-# Doesn't return anything besides errors
-@login_required
-@user_passes_test(is_employee)
-def manage_order(request):
-    error = None
-    try:
-        order = json.loads(request.body.decode('utf-8'))
-        o = Order.objects.get(id=order.id)
-        o.isReady = order.isReady
-        o.isDelivered = order.isDelivered
-        o.save()
-    except:
-        error = "Error managing order"
-    return JsonResponse({'error': error})
 
 # For barista to log a shift
 # Doesn't return anything besides errors
