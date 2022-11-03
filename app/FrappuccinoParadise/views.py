@@ -248,11 +248,12 @@ def pay(request):
             if not shift.paid:
                 if request.user.account.credit >= earnings:
                     request.user.account.credit -= earnings
+                    request.user.account.save()
                     shift.employee.credit += earnings
-                    shift.paid = True
-                    response['paid'].append(shift.id)
                     shift.employee.save()
+                    shift.paid = True
                     shift.save()
+                    response['paid'].append(shift.id)
                 else:
                     response['errors'].add("Insufficient funds")
                     response['unpaid'].append(shift.id)
