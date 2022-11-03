@@ -1,6 +1,6 @@
 import { Button, Divider } from '@mui/material';
 import { Stack } from '@mui/system';
-import React from 'React';
+import React from 'react';
 import BuyInventory from '../components/BuyInventory';
 import ManageMenu from '../components/ManageMenu';
 
