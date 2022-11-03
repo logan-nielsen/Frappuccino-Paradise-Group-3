@@ -1,13 +1,12 @@
 from datetime import datetime
 import json
-from FrappuccinoParadise.models import Account, TimeCard
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
 
-from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account
+from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
 
 def is_employee(user):
     return user.groups.filter(name="Baristas").exists()
@@ -17,9 +16,6 @@ def is_manager(user):
 
 def get_manager():
     return User.objects.get(groups=3)
-
-def api(request):
-    return JsonResponse({'test': True})
     
 @login_required
 def index(request):
@@ -45,6 +41,28 @@ def get_recipe(request):
 def get_ingredients(request):
     return JsonResponse(list(Ingredient.objects.values()), safe=False)
 
+# Manger buys ingredients
+# Doesn't return anything besides errors
+@login_required
+@user_passes_test(is_manager)
+def buy_ingredients(request):
+    error = None
+    manager = request.user
+    cost = request.POST(['cost'])
+    ingredients = request.POST(['ingredients'])
+    try:
+        if manager.account.credit.amount < cost:
+            error = 'Insufficient funds'
+        else:
+            for ingredient in ingredients:
+                i = Ingredient.objects.get(name=ingredient)
+                i.amountPurchased += ingredients[ingredient]
+            manager.account.credit -= Money(cost, 'USD')
+            manager.account.save()
+    except:
+        error = 'Error buying ingredients'
+    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
+
 # Place order
 # Doesn't return anything besides errors
 @login_required
@@ -57,20 +75,21 @@ def place_order(request):
         ingredients = {}
         cost = 0
         for item in order:
+            amount = int(item['amount'])
             cost += float(item['cost'])
             drink = Drink.objects.get(pk=item['drink']['id'])
             # Get required ingredients
             for ingredientItem in drink.ingredientitem_set.all():
                 if ingredientItem.ingredient.name not in ingredients:
-                    ingredients.update({ingredientItem.ingredient.name: ingredientItem.number})
+                    ingredients.update({ingredientItem.ingredient.name: ingredientItem.number * amount})
                 else:
-                    ingredients[ingredientItem.ingredient.name] += ingredientItem.number
+                    ingredients[ingredientItem.ingredient.name] += ingredientItem.number * amount
             # Add addOns
             for ingredientItem in item['addOns']:
                 if ingredientItem['name'] not in ingredients:
-                    ingredients.update({ingredientItem['name']: int(ingredientItem['number'])})
+                    ingredients.update({ingredientItem['name']: int(ingredientItem['number']) * amount})
                 else:
-                    ingredients[ingredientItem['name']] += int(ingredientItem['number'])
+                    ingredients[ingredientItem['name']] += int(ingredientItem['number']) * amount
         # Check inventory
         for ingredientItem in ingredients:
             if Ingredient.objects.get(name=ingredientItem).amountPurchased < ingredients[ingredientItem]:
@@ -106,8 +125,8 @@ def place_order(request):
                         number = addOn['number'],        
                     )
     except Exception as e:
-        error = str(e)
-    return JsonResponse({'error': error})
+        error = 'Error placing order'
+    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
 
 # Get list of orders
 # Returns a list of orders
@@ -141,22 +160,6 @@ def get_orders(request):
 
     return JsonResponse(ordersList, safe=False)
 
-# Changes status of order
-# Doesn't return anything besides errors
-@login_required
-@user_passes_test(is_employee)
-def manage_order(request):
-    error = None
-    try:
-        order = json.loads(request.body.decode('utf-8'))
-        o = Order.objects.get(id=order.id)
-        o.isReady = order.isReady
-        o.isDelivered = order.isDelivered
-        o.save()
-    except:
-        error = "Error managing order"
-    return JsonResponse({'error': error})
-
 # For barista to log a shift
 # Doesn't return anything besides errors
 @login_required
@@ -169,7 +172,7 @@ def add_shift(request):
         request.user.account.timecard_set.create(date=date, hours=hours)
     except:
         error = "Error logging hours"
-    return JsonResponse({'error': error})
+    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
 
 # For barista to see the last (up to) 20 logged shifts
 # Returns date, number of hours and whether employee has been paid for each of those shifts
@@ -187,7 +190,7 @@ def get_logged_shifts(request):
         response['error'] = None
     except:
         response['error'] = "Error retrieving shifts"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # For managers to see their employees
 # Returns username, first name and last name of each employee
@@ -205,7 +208,7 @@ def employees(request):
         response['error'] = None
     except:
         response['error'] = "Error retrieving employee information"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # For managers to see an employee's unpaid shifts
 # Returns date and number of hours for each unpaid shift
@@ -226,7 +229,7 @@ def get_unpaid(request):
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error retrieving shifts for this user"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Uses manager's funds to pay TimeCards specified in 'shift_ids'
 # Return a list of 'paid' TimeCards, a list 'unpaid' that couldn't be paid, and a list of 'errors'
@@ -263,7 +266,7 @@ def pay(request):
         except:
             response['errors'].add("Error paying employee(s)\n")
             response['unpaid'].append(shift_id)
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Elevate user to barista status
 # No return besides errors
@@ -282,7 +285,7 @@ def hire(request):
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error making this user a barista"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Demote barista to customer
 # No return besides errors
@@ -300,7 +303,7 @@ def fire(request):
         response['error'] = "Error finding this user"
     except:
         response['error'] = "Error removing user from baristas group"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Create new account
 # No return besides errors
@@ -329,7 +332,7 @@ def new_account(request):
         response['error'] = "Error creating new customer"
     except:
         response['error'] = "Error creating user"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Get account information
 # Returns first_name, last_name, username, email, credit, currency, groups
@@ -348,7 +351,7 @@ def account(request):
         response['error'] = None
     except:
         response['error'] = "Error retrieving account information"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Add credit to account
 # No return besides errors
@@ -362,7 +365,7 @@ def add_credit(request):
         response['error'] = None
     except:
         response['error'] = f"Could not add {amount} to credit"
-    return JsonResponse(response)
+    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 @login_required
 def user_is_employee(request):
