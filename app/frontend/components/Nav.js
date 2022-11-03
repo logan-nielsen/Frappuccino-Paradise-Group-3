@@ -13,6 +13,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import HomeIcon from '@mui/icons-material/Home';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CoffeeMakerIcon from '@mui/icons-material/CoffeeMaker';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import AccountCircle from '@mui/icons-material/AccountCircle';
@@ -26,12 +27,19 @@ const drawerWidth = 240;
 export default function PermanentDrawer(props) {
   const [anchorEl, setAnchorEl] = useState(null)
   const [isEmployee, setIsEmployee] = useState(false)
+  const [isManager, setIsManager] = useState(false)
 
   useEffect(() => {
     fetch('api/isemployee')
       .then(response => response.json())
       .then(json => {
         setIsEmployee(json.is_employee)
+      })
+
+    fetch('api/ismanager')
+      .then(response => response.json())
+      .then(json => {
+        setIsManager(json.is_manager)
       })
   }, [])
 
@@ -143,6 +151,17 @@ export default function PermanentDrawer(props) {
               <ListItemText>Manage Orders</ListItemText>
             </ListItemButton>
           </ListItem>
+        }
+
+        {isManager &&
+          <ListItem key="Manager Dashboard" disablePadding>
+          <ListItemButton onClick={() => navigate("app/manager-dashboard")}>
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText>Manager Dashboard</ListItemText>
+          </ListItemButton>
+        </ListItem>
         }
       </List>
     </Drawer>

@@ -234,35 +234,39 @@ def get_unpaid(request):
 @user_passes_test(is_manager)
 def pay(request):
     # This should be a list of TimeCard ids - change it here or in the frontend as necessary
-    shifts = request.POST['shift_ids']
-    hourly_wage = float(request.POST['hourly_wage'])
+    shifts = TimeCard.objects.filter(paid=False);
+    hourly_wage = 15 # TODO: make the hourly wage not hard coded
     response = {
         'paid': list(),
         'unpaid': list(),
         'errors': set(),
     }
-    for shift_id in shifts:
+    test = False
+    for shift in shifts:
         try:
-            shift = TimeCard.objects.get(id=shift_id)
             earnings = Money(shift.hours * hourly_wage, 'USD')
             if not shift.paid:
                 if request.user.account.credit >= earnings:
                     request.user.account.credit -= earnings
                     shift.employee.credit += earnings
                     shift.paid = True
-                    response['paid'].append(shift_id)
+                    response['paid'].append(shift.id)
+                    shift.employee.save()
+                    shift.save()
                 else:
                     response['errors'].add("Insufficient funds")
-                    response['unpaid'].append(shift_id)
+                    response['unpaid'].append(shift.id)
             else:
-                response['errors'].add(f"TimeCard {shift_id} has already been paid")
-                response['paid'].append(shift_id)
+                response['errors'].add(f"TimeCard {shift.id} has already been paid")
+                response['paid'].append(shift.id)
         except(TimeCard.DoesNotExist):
-            response['errors'].add(f"TimeCard {shift_id} does not exist\n")
-            response['unpaid'].append(shift_id)
-        except:
-            response['errors'].add("Error paying employee(s)\n")
-            response['unpaid'].append(shift_id)
+            response['errors'].add(f"TimeCard {shift.id} does not exist\n")
+            response['unpaid'].append(shift.id)
+        except Exception as e:
+            response['errors'].add(f"{e}\n")
+            response['unpaid'].append(shift.id)
+
+    response['errors'] = list(response['errors'])
     return JsonResponse(response)
 
 # Elevate user to barista status
