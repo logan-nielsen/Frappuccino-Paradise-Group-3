@@ -424,3 +424,33 @@ def get_my_orders(request):
         orders_list[i]['order_items'] = order_items_list
 
     return JsonResponse(orders_list, safe=False)
+
+
+@login_required
+@user_passes_test(is_manager or is_employee)
+def get_order_history(request):
+    orders = Order.objects.all().order_by('date', 'time')
+    orders_list = list(orders.values())
+
+    for i in range(len(orders)):
+        order_items = orders[i].orderitem_set.all()
+        order_items_list = list(order_items.values())
+
+        orders_list[i]['formatted_time'] = orders[i].time.strftime("%#I:%M %p")
+
+        for j in range(len(order_items)):
+            add_ons = order_items[j].addon_set.all()
+            add_ons_list = list(add_ons.values())
+            order_items_list[j]['addons'] = add_ons_list
+
+            for k in range(len(add_ons_list)):
+                add_on = add_ons_list[k]
+                ingredient = Ingredient.objects.get(pk=add_ons[k].ingredient_id)
+                add_on['ingredient_name'] = ingredient.name
+
+            drink = Drink.objects.get(pk=order_items[j].drink_id)
+            order_items_list[j]['drink_name'] = drink.name
+
+        orders_list[i]['order_items'] = order_items_list
+
+    return JsonResponse(orders_list, safe=False)
