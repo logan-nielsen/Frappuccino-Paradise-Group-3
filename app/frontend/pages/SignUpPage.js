@@ -13,15 +13,6 @@ import Copyright from '../components/Copyright';
 export default function SignUpPage() {
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
-
   return (
     <>
     <Box
@@ -38,16 +29,22 @@ export default function SignUpPage() {
       <Typography component="h1" variant="h5">
         Sign up
       </Typography>
-      <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+      <Box 
+        component="form" 
+        method="post"
+        action="/app/api/newuser/"
+        sx={{ mt: 3 }}
+      >
+        <input type="hidden"  name="csrfmiddlewaretoken" value={ getCookie('csrftoken') } />
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
-              autoComplete="given-name"
-              name="firstName"
+              name="first_name"
               required
               fullWidth
-              id="firstName"
+              id="first_name"
               label="First Name"
+              autoComplete="given-name"
               autoFocus
             />
           </Grid>
@@ -55,10 +52,31 @@ export default function SignUpPage() {
             <TextField
               required
               fullWidth
-              id="lastName"
+              id="last_name"
               label="Last Name"
-              name="lastName"
+              name="last_name"
               autoComplete="family-name"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              autoComplete="username"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="new-password"
             />
           </Grid>
           <Grid item xs={12}>
@@ -69,17 +87,6 @@ export default function SignUpPage() {
               label="Email Address"
               name="email"
               autoComplete="email"
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="new-password"
             />
           </Grid>
         </Grid>
@@ -103,4 +110,20 @@ export default function SignUpPage() {
     <Copyright sx={{ mt: 5 }} />
     </>
   );
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
 }
