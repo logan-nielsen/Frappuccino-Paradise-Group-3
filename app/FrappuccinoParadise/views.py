@@ -215,21 +215,33 @@ def employees(request):
 @login_required
 @user_passes_test(is_manager)
 def get_unpaid(request):
-    userId = request.POST['user_id']
-    response = {}
+    employees = User.objects.filter(groups__name='Baristas');
+
+    response = []
+    error = False
     try:
-        employee = User.objects.get(id=userId)
-        for shift in employee.account.timecard_set.filter(paid=False):
-            response[shift.id] = {
-                'date': shift.date,
-                'hours': shift.hours,
+        for employee in employees:
+            employeeRespose = {
+                'id': employee.id,
+                'name': employee.get_full_name(),
+                'hours': 0,
             }
-        response['error'] = None
+
+            for shift in employee.account.timecard_set.filter(paid=False):
+                employeeRespose['hours'] += shift.hours
+            response.append(employeeRespose)
+            
     except User.DoesNotExist:
-        response['error'] = "Error finding this user"
+        response.append({'error': "Error finding this user"})
+        error = True
     except:
-        response['error'] = "Error retrieving shifts for this user"
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+        response.append({'error': "Error retrieving shifts for this user"})
+        error = True
+    return JsonResponse(
+        response,
+        safe=False,
+        status= 400 if error else 200
+    )
 
 # Uses manager's funds to pay TimeCards specified in 'shift_ids'
 # Return a list of 'paid' TimeCards, a list 'unpaid' that couldn't be paid, and a list of 'errors'
@@ -237,35 +249,37 @@ def get_unpaid(request):
 @user_passes_test(is_manager)
 def pay(request):
     # This should be a list of TimeCard ids - change it here or in the frontend as necessary
-    shifts = request.POST['shift_ids']
-    hourly_wage = float(request.POST['hourly_wage'])
+    shifts = TimeCard.objects.filter(paid=False);
+    hourly_wage = 15 # TODO: make the hourly wage not hard coded
     response = {
         'paid': list(),
         'unpaid': list(),
         'errors': set(),
     }
-    for shift_id in shifts:
+    for shift in shifts:
         try:
-            shift = TimeCard.objects.get(id=shift_id)
             earnings = Money(shift.hours * hourly_wage, 'USD')
             if not shift.paid:
                 if request.user.account.credit >= earnings:
                     request.user.account.credit -= earnings
+                    request.user.account.save()
                     shift.employee.credit += earnings
+                    shift.employee.save()
                     shift.paid = True
-                    response['paid'].append(shift_id)
+                    shift.save()
+                    response['paid'].append(shift.id)
                 else:
                     response['errors'].add("Insufficient funds")
-                    response['unpaid'].append(shift_id)
+                    response['unpaid'].append(shift.id)
             else:
-                response['errors'].add(f"TimeCard {shift_id} has already been paid")
-                response['paid'].append(shift_id)
+                response['errors'].add(f"TimeCard {shift.id} has already been paid")
+                response['paid'].append(shift.id)
         except(TimeCard.DoesNotExist):
-            response['errors'].add(f"TimeCard {shift_id} does not exist\n")
-            response['unpaid'].append(shift_id)
-        except:
-            response['errors'].add("Error paying employee(s)\n")
-            response['unpaid'].append(shift_id)
+            response['errors'].add(f"TimeCard {shift.id} does not exist\n")
+            response['unpaid'].append(shift.id)
+        except Exception as e:
+            response['errors'].add("{e}\n")
+            response['unpaid'].append(shift.id)
     return JsonResponse(response, status= 400 if response['error'] !=None else 200)
 
 # Elevate user to barista status

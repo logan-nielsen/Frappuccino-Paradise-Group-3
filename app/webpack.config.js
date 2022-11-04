@@ -8,6 +8,7 @@ module.exports = {
   output: {
     filename: '[name].bundle.js',  // output bundle file name
     path: path.resolve(__dirname, './static'),  // path to our Django static directory
+    clean: true,
   },
   module: {
     rules: [
