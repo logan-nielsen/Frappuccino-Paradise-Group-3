@@ -10,7 +10,7 @@ export default function PayEmployees() {
       .then(json => {
         setEmployees(json);
       })
-  });
+  }, []);
 
   function payEmployees() {
     fetch("api/pay/")
