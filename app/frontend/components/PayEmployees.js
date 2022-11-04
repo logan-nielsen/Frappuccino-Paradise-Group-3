@@ -18,11 +18,12 @@ export default function PayEmployees() {
   }
 
   const employeeItems = employees.map((employee, index) => 
-    <Typography>{employee.name}: {employee.hours}</Typography>
+    <p key={index}>{employee.name}: {employee.hours}</p>
   );
 
   return (
     <>
+    <Typography variant="h4" gutterBottom>Pay Employees</Typography>
     <Button 
       variant="contained" 
       onClick={payEmployees}

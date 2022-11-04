@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 export default function BuyInventory() {
   const [inventory, setInventory] = useState([]);
+  const [totalCost, setTotalCost] = useState(0);
 
   useEffect(() => {
     fetch('api/getingredients')
@@ -12,10 +13,19 @@ export default function BuyInventory() {
         ingredients.forEach(element => {
           element.number = 0;
         });
+        console.log(ingredients);
 
         setInventory(ingredients);
       })
   }, []);
+
+  useEffect(() => {
+    let newCost = 0;
+    inventory.forEach(element => {
+      newCost += parseInt(element.number) * parseFloat(element.cost);
+    })
+    setTotalCost(newCost);
+  }, [inventory]);
 
   function buyInventory() {
     console.log(inventory);
@@ -61,6 +71,7 @@ export default function BuyInventory() {
   return (
     <>
     <Typography variant="h4" gutterBottom>Buy Inventory</Typography>
+    <p>Total Cost: ${totalCost.toFixed(2)}</p>
     <Stack spacing={2}>
       <Grid container spacing={2}>
         {inventoryItems}
