@@ -1,4 +1,5 @@
 import { Button, Grid, TextField, Typography } from '@mui/material';
+import { Stack } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 
 export default function BuyInventory() {
@@ -32,7 +33,7 @@ export default function BuyInventory() {
     let value = event.target.value;
     
     if (!value) {
-      setInventoryNumber(index, "");
+      setInventoryNumber(index, "0");
     }
     else if (isPositiveInteger(value) && parseInt(value) >= 0) {
       if (value.length > 1 && value.startsWith('0')) {
@@ -60,16 +61,18 @@ export default function BuyInventory() {
   return (
     <>
     <Typography variant="h4" gutterBottom>Buy Inventory</Typography>
-    <Grid container spacing={2}>
-      {inventoryItems}
-    </Grid>
-    <Button 
-      variant="contained" 
-      onClick={buyInventory}
-      sx={{maxWidth: '200px'}}
-    >
-      Buy Inventory
-    </Button>
+    <Stack spacing={2}>
+      <Grid container spacing={2}>
+        {inventoryItems}
+      </Grid>
+      <Button 
+        variant="contained" 
+        onClick={buyInventory}
+        sx={{maxWidth: '200px'}}
+      >
+        Buy Inventory
+      </Button>
+    </Stack>
     </>
   );
 }

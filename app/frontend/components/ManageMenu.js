@@ -1,4 +1,5 @@
 import { Button, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Stack } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import MenuIngredientsDialog from './MenuIngredientsDialog';
 
@@ -85,27 +86,29 @@ export default function ManageMenu() {
   return (
     <>
     <Typography variant="h4" gutterBottom>Manage Menu</Typography>
-    <TableContainer>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Ingredients</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {menuItems}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <Button 
-      variant="contained" 
-      onClick={saveMenu}
-      sx={{maxWidth: '200px'}}
-    >
-      Save Menu
-    </Button>
+    <Stack spacing={2}>
+      <TableContainer>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Price</TableCell>
+              <TableCell>Ingredients</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {menuItems}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Button 
+        variant="contained" 
+        onClick={saveMenu}
+        sx={{maxWidth: '200px'}}
+      >
+        Save Menu
+      </Button>
+    </Stack>
     </>
   );
 }

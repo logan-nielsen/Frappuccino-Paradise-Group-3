@@ -33,19 +33,12 @@ export default function ManagerDashboardPage() {
   }
 
   return (
-    // <Stack spacing={2}>
-    //   <PayEmployees />
-    //   <Divider />
-    //   <ManageMenu />
-    //   <Divider />
-    //   <BuyInventory />
-    // </Stack>
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="Pay Employees" value={0} />
-          <Tab label="Buy Inventory" value={1} />
-          <Tab label="Manage Menu" value={2} />
+          <Tab label="Manage Menu" value={1} />
+          <Tab label="Buy Inventory" value={2} />
         </Tabs>
       </Box>
       <TabPanel value={tabValue} index={0}>

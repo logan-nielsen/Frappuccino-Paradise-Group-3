@@ -212,21 +212,26 @@ def employees(request):
 @login_required
 @user_passes_test(is_manager)
 def get_unpaid(request):
-    userId = request.POST['user_id']
-    response = {}
+    employees = User.objects.filter(groups__name='Baristas');
+
+    response = []
     try:
-        employee = User.objects.get(id=userId)
-        for shift in employee.account.timecard_set.filter(paid=False):
-            response[shift.id] = {
-                'date': shift.date,
-                'hours': shift.hours,
+        for employee in employees:
+            employeeRespose = {
+                'id': employee.id,
+                'name': employee.get_full_name(),
+                'hours': 0,
             }
-        response['error'] = None
+
+            for shift in employee.account.timecard_set.filter(paid=False):
+                employeeRespose['hours'] += shift.hours
+            response.append(employeeRespose)
+            
     except User.DoesNotExist:
-        response['error'] = "Error finding this user"
-    except:
-        response['error'] = "Error retrieving shifts for this user"
-    return JsonResponse(response)
+        response.append({'error': "Error finding this user"})
+    # except:
+    #     response.append({'error': "Error retrieving shifts for this user"})
+    return JsonResponse(response, safe=False)
 
 # Uses manager's funds to pay TimeCards specified in 'shift_ids'
 # Return a list of 'paid' TimeCards, a list 'unpaid' that couldn't be paid, and a list of 'errors'
@@ -241,7 +246,6 @@ def pay(request):
         'unpaid': list(),
         'errors': set(),
     }
-    test = False
     for shift in shifts:
         try:
             earnings = Money(shift.hours * hourly_wage, 'USD')
