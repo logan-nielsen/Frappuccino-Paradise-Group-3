@@ -329,7 +329,7 @@ def new_account(request):
     email = request.POST['email']
     response = {}
     try:
-        customers = Group.objects.get('Customers')
+        customers = Group.objects.get(name='Customers')
         newuser = User.objects.create_user(
             username=username, 
             password=password, 
