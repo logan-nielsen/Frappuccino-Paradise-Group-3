@@ -22,6 +22,7 @@ export default function ManagerDashboardPage() {
       </Button>
       <Divider />
       <ManageMenu />
+      <Divider />
       <BuyInventory />
     </Stack>
   );

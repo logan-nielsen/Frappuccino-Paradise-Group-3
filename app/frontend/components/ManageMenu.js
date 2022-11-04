@@ -1,20 +1,28 @@
 import { Button, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import MenuIngredientsDialog from './MenuIngredientsDialog';
 
 export default function ManageMenu() {
   const [menu, setMenu] = useState([]);
+  const [ingredientsList, setIngredientsList] = useState([]);
 
   useEffect(() => {
     fetch('api/getmenu')
-    .then(response => response.json())
-    .then(json => {
-      setMenu(json);
-    })
-  }, [])
+      .then(response => response.json())
+      .then(json => {
+        setMenu(json);
+      })
 
-  useEffect(() => {
-    console.log(menu)
-  }, [menu])
+    fetch('api/getingredients')
+      .then(response => response.json())
+      .then(ingredients => {
+        ingredients.forEach(element => {
+          element.number = 0;
+        });
+
+        setIngredientsList(ingredients);
+      })
+  }, [])
 
   function setMenuName(index, name) {
     let newMenu = [...menu];
@@ -49,7 +57,7 @@ export default function ManageMenu() {
     if (!value) {
       setMenuPrice(index, "");
     }
-    else if (isValidMoney(value)) {
+    else if (isValidMoneyInput(value)) {
       if (value.length > 1 && value.startsWith('0')) {
         value = value.slice(1);
       }
@@ -59,11 +67,55 @@ export default function ManageMenu() {
   }
 
   function saveMenu() {
-    console.log("save menu");
+
   }
-  
+
+      
   const menuItems = menu.map((drink, index) => 
-    <TableRow key={index}>
+    <MenuItem 
+      key={index} 
+      index={index}
+      drink={drink} 
+      ingredientsList={ingredientsList} 
+      handleNameInput={handleNameInput}
+      handlePriceInput={handlePriceInput}
+    />
+  );
+
+  return (
+    <>
+    <Typography variant="h4" gutterBottom>Manage Menu</Typography>
+    <TableContainer>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Price</TableCell>
+            <TableCell>Ingredients</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {menuItems}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    <Button 
+      variant="contained" 
+      onClick={saveMenu}
+      sx={{maxWidth: '200px'}}
+    >
+      Save Menu
+    </Button>
+    </>
+  );
+}
+
+function MenuItem({index, drink, ingredientsList, handleNameInput, handlePriceInput}) {
+  const [ingredientsDialogOpen, setIngredientsDialogOpen] = useState(false);
+
+  return (
+    <>
+    <TableRow>
       <TableCell>
         <TextField
           value={drink.name}
@@ -91,39 +143,21 @@ export default function ManageMenu() {
         <Button 
           variant="contained" 
           sx={{maxWidth: '200px'}}
+          onClick={() => setIngredientsDialogOpen(true)}
         >
           Update Ingredients
         </Button>
       </TableCell> 
     </TableRow>
-  );
 
-  return (
-    <>
-    <Typography variant="h4" gutterBottom>Manage Menu</Typography>
-    <TableContainer>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Price</TableCell>
-            <TableCell>Ingredients</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {menuItems}
-        </TableBody>
-      </Table>
-    </TableContainer>
-    <Button 
-        variant="contained" 
-        onClick={saveMenu}
-        sx={{maxWidth: '200px'}}
-      >
-        Save Menu
-      </Button>
+    <MenuIngredientsDialog
+      open={ingredientsDialogOpen}
+      setOpen={setIngredientsDialogOpen}
+      drink={drink}
+      ingredientsList={ingredientsList}
+    />
     </>
-  );
+  )
 }
 
 function isValidMoneyInput(value) {

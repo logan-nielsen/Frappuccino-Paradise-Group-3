@@ -43,7 +43,7 @@ export default function BuyInventory() {
     }
   }
 
-  const inventoryItem = inventory.map((ingredient, index) => 
+  const inventoryItems = inventory.map((ingredient, index) => 
     <Grid item xs={4} key={index}>
       <TextField
         label={ingredient.name}
@@ -61,15 +61,15 @@ export default function BuyInventory() {
     <>
     <Typography variant="h4" gutterBottom>Buy Inventory</Typography>
     <Grid container spacing={2}>
-      {inventoryItem}
+      {inventoryItems}
     </Grid>
     <Button 
-        variant="contained" 
-        onClick={buyInventory}
-        sx={{maxWidth: '200px'}}
-      >
-        Buy Inventory
-      </Button>
+      variant="contained" 
+      onClick={buyInventory}
+      sx={{maxWidth: '200px'}}
+    >
+      Buy Inventory
+    </Button>
     </>
   );
 }
