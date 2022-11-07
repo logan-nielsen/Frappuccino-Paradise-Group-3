@@ -7,6 +7,7 @@ import AddBalanceDialog from '../components/AddBalanceDialog';
 export default function AccountPage() {
   const [name, setName] = useState()
   const [email, setEmail] = useState()
+  const [role, setRole] = useState();
   const [balance, setBalance] = useState()
   const [addBalanceModalOpen, setAddBalanceModalOpen] = useState(false)
   const [hoursToAdd, setHoursToAdd] = useState("")
@@ -29,6 +30,16 @@ export default function AccountPage() {
         setName(`${json.first_name} ${json.last_name}`)
         setEmail(json.email)
         setBalance(json.credit)
+
+        if (json.groups.includes("Managers")) {
+          setRole("Manager");
+        }
+        else if (json.groups.includes("Baristas")) {
+          setRole("Barista");
+        }
+        else {
+          setRole("Customer");
+        }
       })
   }, [])
 
@@ -101,6 +112,7 @@ export default function AccountPage() {
         <Typography component="h2" variant = "h3">Account</Typography>
         <Typography variant="body1">Name: { name }</Typography>
         <Typography variant="body1">Email: { email }</Typography>
+        <Typography variant="body1">Role: { role }</Typography>
         <Typography variant="body1">Current Account Balance: ${ balance }</Typography>
 
         <Button
