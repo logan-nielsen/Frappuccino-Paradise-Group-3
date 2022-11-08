@@ -48,7 +48,7 @@ def get_ingredients(request):
 def buy_ingredients(request):
     error = None
     manager = request.user
-    cost = int(request.POST['cost'])
+    cost = float(request.POST['cost'])
     ingredients = json.loads(request.POST['ingredients'])
     try:
         if manager.account.credit.amount < cost:
@@ -216,7 +216,7 @@ def employees(request):
 @login_required
 @user_passes_test(is_manager)
 def get_unpaid(request):
-    employees = User.objects.filter(groups__name='Baristas');
+    employees = User.objects.filter(groups__name='Baristas').exclude(groups__name='Managers');
 
     response = []
     error = False
@@ -469,6 +469,7 @@ def get_order_history(request):
         orders_list[i]['order_items'] = order_items_list
 
     return JsonResponse(orders_list, safe=False)
+
 # Adds new drink to the menu
 # Doesn't return anything besides errors
 @login_required
@@ -478,11 +479,11 @@ def add_menu_item(request):
     price = request.POST['price']
     ingredients = json.loads(request.POST['ingredients'])
     drink = Drink(name=name, cost=price)
+    drink.save();
     for i in ingredients:
-        if (i['number'] > 0):
+        if (int(i['number']) > 0):
             ingredient = Ingredient.objects.get(pk=i['id'])
             drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
-    drink.save()
     return JsonResponse({'error': None})
 
 # Removes a drink from the menu
@@ -502,14 +503,14 @@ def edit_menu(request):
     menu = json.loads(request.POST['menu'])
     for item in menu:
         name = item['name']
-        price = item['price']
+        price = item['cost']
         ingredients = item['ingredients']
         drink = Drink.objects.get(pk=item['id'])
         drink.name = name
         drink.cost = price
         drink.ingredientitem_set.all().delete()
         for i in ingredients:
-            if (i['number'] > 0):
+            if (int(i['number']) > 0):
                 ingredient = Ingredient.objects.get(pk=i['id'])
                 drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
         drink.save()

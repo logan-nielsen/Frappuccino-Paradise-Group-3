@@ -15,15 +15,11 @@ export default function AccountPage() {
   const [payrollError, setPayrollError] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState();
-  const [isEmployee, setIsEmployee] = useState();
+  const [isBarista, setIsBarista] = useState(false);
 
 
   // Get if the user is an employee and general user information
   useEffect(() => {
-    fetch("api/isemployee/")
-      .then(response => response.json())
-      .then(json => setIsEmployee(json.is_employee))
-
     fetch("api/account/")
       .then(response => response.json())
       .then(json => {
@@ -36,6 +32,7 @@ export default function AccountPage() {
         }
         else if (json.groups.includes("Baristas")) {
           setRole("Barista");
+          setIsBarista(true);
         }
         else {
           setRole("Customer");
@@ -130,7 +127,7 @@ export default function AccountPage() {
       </Stack>
 
       {/* Conditionally render the log hours section */}
-      {isEmployee && 
+      {isBarista && 
         <Stack spacing={2}>
           <Typography component="h2" variant = "h3">Log Hours</Typography>
           <Box 
