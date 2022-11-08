@@ -48,7 +48,7 @@ def get_ingredients(request):
 def buy_ingredients(request):
     error = None
     manager = request.user
-    cost = int(request.POST['cost'])
+    cost = float(request.POST['cost'])
     ingredients = json.loads(request.POST['ingredients'])
     try:
         if manager.account.credit.amount < cost:
@@ -469,6 +469,7 @@ def get_order_history(request):
         orders_list[i]['order_items'] = order_items_list
 
     return JsonResponse(orders_list, safe=False)
+
 # Adds new drink to the menu
 # Doesn't return anything besides errors
 @login_required
