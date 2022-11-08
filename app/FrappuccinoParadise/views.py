@@ -330,7 +330,7 @@ def new_account(request):
     email = request.POST['email']
     response = {}
     try:
-        customers = Group.objects.get('Customers')
+        customers = Group.objects.get(name='Customers')
         newuser = User.objects.create_user(
             username=username, 
             password=password, 
@@ -469,3 +469,48 @@ def get_order_history(request):
         orders_list[i]['order_items'] = order_items_list
 
     return JsonResponse(orders_list, safe=False)
+# Adds new drink to the menu
+# Doesn't return anything besides errors
+@login_required
+@user_passes_test(is_manager)
+def add_menu_item(request):
+    name = request.POST['name']
+    price = request.POST['price']
+    ingredients = json.loads(request.POST['ingredients'])
+    drink = Drink(name=name, cost=price)
+    for i in ingredients:
+        if (i['number'] > 0):
+            ingredient = Ingredient.objects.get(pk=i['id'])
+            drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
+    drink.save()
+    return JsonResponse({'error': None})
+
+# Removes a drink from the menu
+# Doesn't return anything besides errors
+@login_required
+@user_passes_test(is_manager)
+def remove_menu_item(request):
+    drink = Drink.objects.get(pk=request.POST['id'])
+    drink.delete()
+    return JsonResponse({'error': None})
+
+# Edits existing drinks on the menu
+# Doesn't return anything besides errors
+@login_required
+@user_passes_test(is_manager)
+def edit_menu(request):
+    menu = json.loads(request.POST['menu'])
+    for item in menu:
+        name = item['name']
+        price = item['price']
+        ingredients = item['ingredients']
+        drink = Drink.objects.get(pk=item['id'])
+        drink.name = name
+        drink.cost = price
+        drink.ingredientitem_set.all().delete()
+        for i in ingredients:
+            if (i['number'] > 0):
+                ingredient = Ingredient.objects.get(pk=i['id'])
+                drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
+        drink.save()
+    return JsonResponse({'error': None})
