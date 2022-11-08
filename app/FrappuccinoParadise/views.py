@@ -48,20 +48,21 @@ def get_ingredients(request):
 def buy_ingredients(request):
     error = None
     manager = request.user
-    cost = request.POST(['cost'])
-    ingredients = request.POST(['ingredients'])
+    cost = int(request.POST['cost'])
+    ingredients = json.loads(request.POST['ingredients'])
     try:
         if manager.account.credit.amount < cost:
             error = 'Insufficient funds'
         else:
             for ingredient in ingredients:
-                i = Ingredient.objects.get(name=ingredient)
-                i.amountPurchased += ingredients[ingredient]
+                i = Ingredient.objects.get(pk=ingredient['id'])
+                i.amountPurchased += int(ingredient['number'])
+                i.save()
             manager.account.credit -= Money(cost, 'USD')
             manager.account.save()
     except:
         error = 'Error buying ingredients'
-    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
+    return JsonResponse({'error': error}, status= 400 if error != None else 200)
 
 # Place order
 # Doesn't return anything besides errors

@@ -7,16 +7,7 @@ export default function BuyInventory() {
   const [totalCost, setTotalCost] = useState(0);
 
   useEffect(() => {
-    fetch('api/getingredients')
-      .then(response => response.json())
-      .then(ingredients => {
-        ingredients.forEach(element => {
-          element.number = 0;
-        });
-        console.log(ingredients);
-
-        setInventory(ingredients);
-      })
+    getInventory();
   }, []);
 
   useEffect(() => {
@@ -28,7 +19,46 @@ export default function BuyInventory() {
   }, [inventory]);
 
   function buyInventory() {
-    console.log(inventory);
+    let formData = new FormData();
+    formData.append(
+      'csrfmiddlewaretoken',
+      getCookie('csrftoken')
+    )
+    formData.append(
+      'cost',
+      totalCost 
+    )
+    formData.append(
+      'ingredients',
+      JSON.stringify(inventory)
+    )
+
+    fetch('api/buyingredients/', {
+      method: "POST",
+      body: formData
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.error) {
+          // Add error handling
+        }
+        else {
+          getInventory();
+        }
+      })
+  }
+
+  function getInventory() {
+    fetch('api/getingredients/')
+      .then(response => response.json())
+      .then(ingredients => {
+        ingredients.forEach(element => {
+          element.number = 0;
+        });
+        console.log(ingredients);
+
+        setInventory(ingredients);
+      })
   }
 
   function setInventoryNumber(index, newNumber) {
@@ -63,6 +93,7 @@ export default function BuyInventory() {
         required
         error={ingredient.number === ""}
         onChange={event => handleInventoryInput(event, index)}
+        helperText={`Current amount: ${ingredient.amountPurchased}`}
         sx={{ marginTop: "10px" }}
       />
     </Grid> 
@@ -90,4 +121,20 @@ export default function BuyInventory() {
 
 function isPositiveInteger(value) {
   return /^[\d|e]*$/.test(value);
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
 }
