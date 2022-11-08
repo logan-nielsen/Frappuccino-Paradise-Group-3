@@ -1,8 +1,10 @@
-import { Button, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { Button, IconButton, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import AddDrinkDialog from './AddDrinkDialog';
 import MenuIngredientsDialog from './MenuIngredientsDialog';
+import DeleteDrinkDialog from './DeleteDrinkDialog';
 
 export default function ManageMenu({ openSnackbar }) {
   const [menu, setMenu] = useState([]);
@@ -147,6 +149,8 @@ export default function ManageMenu({ openSnackbar }) {
       setDrinkIngredients={setIngredients} 
       handleNameInput={handleNameInput}
       handlePriceInput={handlePriceInput}
+      openSnackbar={openSnackbar}
+      getMenu={getMenu}
     />
   );
 
@@ -161,6 +165,7 @@ export default function ManageMenu({ openSnackbar }) {
               <TableCell>Name</TableCell>
               <TableCell>Price</TableCell>
               <TableCell>Ingredients</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -202,9 +207,12 @@ function MenuItem({
   drink, 
   handleNameInput, 
   handlePriceInput,
-  setDrinkIngredients
+  setDrinkIngredients,
+  openSnackbar,
+  getMenu
 }) {
   const [ingredientsDialogOpen, setIngredientsDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   return (
     <>
@@ -241,6 +249,14 @@ function MenuItem({
           Update Ingredients
         </Button>
       </TableCell> 
+      <TableCell>
+        <IconButton 
+          color="error"
+          onClick={() => setDeleteDialogOpen(true)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </TableCell> 
     </TableRow>
 
     <MenuIngredientsDialog
@@ -249,6 +265,13 @@ function MenuItem({
       setOpen={setIngredientsDialogOpen}
       drink={drink}
       setDrinkIngredients={setDrinkIngredients}
+    />
+    <DeleteDrinkDialog 
+      open={deleteDialogOpen}
+      setOpen={setDeleteDialogOpen}
+      drink={drink}
+      openSnackbar={openSnackbar}
+      getMenu={getMenu}
     />
     </>
   )
