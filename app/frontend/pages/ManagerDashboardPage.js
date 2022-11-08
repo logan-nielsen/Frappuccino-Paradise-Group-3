@@ -1,5 +1,4 @@
 import { Alert, Box, Button, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
-import { Stack } from '@mui/system';
 import React, { useState } from 'react';
 import BuyInventory from '../components/BuyInventory';
 import ManageMenu from '../components/ManageMenu';
@@ -68,17 +67,17 @@ export default function ManagerDashboardPage() {
     </Box>
     
     <Snackbar
-    open={snackbarOpen}
-    autoHideDuration={6000}
-    onClose={handleSnackbarClose}
-  >
-    <Alert 
+      open={snackbarOpen}
+      autoHideDuration={6000}
       onClose={handleSnackbarClose}
-      severity={ snackbarError ? 'error' : 'success' }
     >
-      { snackbarMessage }
-    </Alert>
-  </Snackbar>
+      <Alert 
+        onClose={handleSnackbarClose}
+        severity={ snackbarError ? 'error' : 'success' }
+      >
+        { snackbarMessage }
+      </Alert>
+    </Snackbar>
     </>
   );
 }

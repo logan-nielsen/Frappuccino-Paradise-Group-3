@@ -3,8 +3,6 @@ import { Box, Dialog, DialogActions, DialogContent, DialogTitle, Typography } fr
 import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
 
-const steps = ['Select Drink', 'Add Ons'];
-
 export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder }) {
 
   function handleClose() {

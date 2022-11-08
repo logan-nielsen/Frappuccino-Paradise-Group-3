@@ -1,10 +1,13 @@
 import { Button, InputAdornment, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { useEffect, useState } from 'react';
+import AddDrinkDialog from './AddDrinkDialog';
 import MenuIngredientsDialog from './MenuIngredientsDialog';
 
 export default function ManageMenu({ openSnackbar }) {
   const [menu, setMenu] = useState([]);
+  const [ingredientsList, setIngredientsList] = useState([]);
+  const [addDrinkDialogOpen, setAddDrinkDialogOpen] = useState(false);
 
   useEffect(() => {
     getMenu();
@@ -19,6 +22,7 @@ export default function ManageMenu({ openSnackbar }) {
     ingredients.forEach(ingredient => {
       ingredient.number = 0;
     });
+    setIngredientsList(ingredients);
 
     let promises = [];
     for (const i in newMenu) {
@@ -164,14 +168,31 @@ export default function ManageMenu({ openSnackbar }) {
           </TableBody>
         </Table>
       </TableContainer>
-      <Button 
-        variant="contained" 
-        onClick={saveMenu}
-        sx={{maxWidth: '200px'}}
-      >
-        Save Menu
-      </Button>
+      <div>
+        <Button 
+          variant="contained" 
+          onClick={saveMenu}
+          sx={{maxWidth: '200px', marginRight: '20px'}}
+        >
+          Save Menu
+        </Button>
+        <Button 
+          variant="contained" 
+          onClick={() => setAddDrinkDialogOpen(true)}
+          sx={{maxWidth: '200px'}}
+        >
+          Create Drink
+        </Button>
+      </div>
     </Stack>
+
+    <AddDrinkDialog
+      open={addDrinkDialogOpen}
+      setOpen={setAddDrinkDialogOpen}
+      ingredientsList={ingredientsList}
+      getMenu={getMenu}
+      openSnackbar={openSnackbar}
+    />
     </>
   );
 }

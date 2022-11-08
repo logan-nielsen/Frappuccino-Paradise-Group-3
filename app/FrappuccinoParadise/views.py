@@ -479,11 +479,11 @@ def add_menu_item(request):
     price = request.POST['price']
     ingredients = json.loads(request.POST['ingredients'])
     drink = Drink(name=name, cost=price)
+    drink.save();
     for i in ingredients:
         if (int(i['number']) > 0):
             ingredient = Ingredient.objects.get(pk=i['id'])
             drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
-    drink.save()
     return JsonResponse({'error': None})
 
 # Removes a drink from the menu
