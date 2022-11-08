@@ -216,7 +216,7 @@ def employees(request):
 @login_required
 @user_passes_test(is_manager)
 def get_unpaid(request):
-    employees = User.objects.filter(groups__name='Baristas');
+    employees = User.objects.filter(groups__name='Baristas').exclude(groups__name='Managers');
 
     response = []
     error = False
