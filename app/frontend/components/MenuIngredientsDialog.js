@@ -2,29 +2,18 @@ import { Button, Dialog, DialogContent, DialogTitle, Grid, TextField } from "@mu
 import { Stack } from "@mui/system";
 import React, { useEffect, useState } from "react";
 
-var initialRecipe;
-
-export default function MenuIngredientsDialog({open, setOpen, drink, ingredientsList}) {
-  const [ingredients, setIngredients] = useState([]);  
-
-  useEffect(() => {
-    if (ingredientsList) {
-      fetch(`api/getrecipe?id=${drink.id}`)
-        .then(response => response.json())
-        .then(json => {
-          initialRecipe = structuredClone(ingredientsList);
-          json.forEach((element) => {
-            initialRecipe.forEach(ingredient => {
-              if (element.id == ingredient.id) {
-                ingredient.number = element.number;
-              }
-            })
-          })
-
-          setIngredients(initialRecipe);
-        })
-    }
-  }, [ingredientsList]);
+export default function MenuIngredientsDialog({
+  index,
+  open, 
+  setOpen, 
+  drink,
+  setDrinkIngredients,
+}) {
+  const [ingredients, setIngredients] = useState([]);
+  
+  useState(() => {
+    setIngredients(structuredClone(drink.ingredients));
+  }, [drink])
 
   function setIngredientNumber(index, newNumber) {
     let newIngredients = [...ingredients];
@@ -51,12 +40,13 @@ export default function MenuIngredientsDialog({open, setOpen, drink, ingredients
   }
   
   function handleClose() {
-    setIngredients(initialRecipe);
+    setIngredients(drink.ingredients);
     setOpen(false);
   }
 
   function save() {
-
+    setDrinkIngredients(index, ingredients);
+    setOpen(false);
   }
 
   const ingredientItems = ingredients.map((ingredient, index) => 
@@ -71,7 +61,7 @@ export default function MenuIngredientsDialog({open, setOpen, drink, ingredients
         sx={{ marginTop: "10px" }}
       />
     </Grid> 
-  )
+  );
 
   return (
     <Dialog

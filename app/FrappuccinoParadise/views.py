@@ -480,7 +480,7 @@ def add_menu_item(request):
     ingredients = json.loads(request.POST['ingredients'])
     drink = Drink(name=name, cost=price)
     for i in ingredients:
-        if (i['number'] > 0):
+        if (int(i['number']) > 0):
             ingredient = Ingredient.objects.get(pk=i['id'])
             drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
     drink.save()
@@ -503,14 +503,14 @@ def edit_menu(request):
     menu = json.loads(request.POST['menu'])
     for item in menu:
         name = item['name']
-        price = item['price']
+        price = item['cost']
         ingredients = item['ingredients']
         drink = Drink.objects.get(pk=item['id'])
         drink.name = name
         drink.cost = price
         drink.ingredientitem_set.all().delete()
         for i in ingredients:
-            if (i['number'] > 0):
+            if (int(i['number']) > 0):
                 ingredient = Ingredient.objects.get(pk=i['id'])
                 drink.ingredientitem_set.create(ingredient=ingredient, number=i['number'])
         drink.save()

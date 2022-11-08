@@ -3,27 +3,60 @@ import { Stack } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import MenuIngredientsDialog from './MenuIngredientsDialog';
 
-export default function ManageMenu() {
+export default function ManageMenu({ openSnackbar }) {
   const [menu, setMenu] = useState([]);
-  const [ingredientsList, setIngredientsList] = useState([]);
 
   useEffect(() => {
-    fetch('api/getmenu')
-      .then(response => response.json())
-      .then(json => {
-        setMenu(json);
-      })
-
-    fetch('api/getingredients')
-      .then(response => response.json())
-      .then(ingredients => {
-        ingredients.forEach(element => {
-          element.number = 0;
-        });
-
-        setIngredientsList(ingredients);
-      })
+    getMenu();
   }, [])
+
+  async function getMenu() {
+    const [ingredients, newMenu] = await Promise.all([
+      fetch('api/getingredients/').then(response => response.json()),
+      fetch('api/getmenu/').then(response => response.json())
+    ])
+
+    ingredients.forEach(ingredient => {
+      ingredient.number = 0;
+    });
+
+    let promises = [];
+    for (const i in newMenu) {
+      promises[i] = await getRecipe(newMenu[i], ingredients);
+    }
+
+    let recipes;
+    [...recipes] = await Promise.all(promises);
+    for (const i in recipes) {
+      newMenu[i].ingredients = recipes[i];
+    }
+
+    setMenu(newMenu);
+  }
+
+  async function getRecipe(drink, initialRecipe) {
+    let recipe = await fetch(`api/getrecipe/?id=${drink.id}`)
+      .then(response => response.json())
+    
+    let drinkIngredients = structuredClone(initialRecipe);
+    recipe.forEach((element) => {
+      drinkIngredients.forEach(ingredient => {
+        if (element.ingredient_id == ingredient.id) {
+          ingredient.number = element.number;
+        }
+      })
+    })
+
+    return drinkIngredients;
+  }
+
+  function setIngredients(index, newIngredients) {
+    let newMenu = [...menu];
+    let drink = {...menu[index]};
+    drink.ingredients = newIngredients;
+    newMenu[index] = drink;
+    setMenu(newMenu);
+  }
 
   function setMenuName(index, name) {
     let newMenu = [...menu];
@@ -68,7 +101,36 @@ export default function ManageMenu() {
   }
 
   function saveMenu() {
+    for (const drink of menu) {
+      if (!isValidMoneyFinal(drink.cost)) {
+        openSnackbar(`Invalid price for drink ${drink.name}`, true);
+        return;
+      }
+    }
 
+    let formData = new FormData();
+    formData.append(
+      'csrfmiddlewaretoken',
+      getCookie('csrftoken')
+    )
+    formData.append(
+      'menu',
+      JSON.stringify(menu)
+    )
+
+    fetch('api/editmenu/', {
+      method: "POST",
+      body: formData
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.error) {
+          openSnackbar('Failed to save menu', true);
+        }
+        else {
+          openSnackbar('Successfully saved menu');
+        }
+      })
   }
 
       
@@ -77,7 +139,7 @@ export default function ManageMenu() {
       key={index} 
       index={index}
       drink={drink} 
-      ingredientsList={ingredientsList} 
+      setDrinkIngredients={setIngredients} 
       handleNameInput={handleNameInput}
       handlePriceInput={handlePriceInput}
     />
@@ -113,7 +175,13 @@ export default function ManageMenu() {
   );
 }
 
-function MenuItem({index, drink, ingredientsList, handleNameInput, handlePriceInput}) {
+function MenuItem({
+  index, 
+  drink, 
+  handleNameInput, 
+  handlePriceInput,
+  setDrinkIngredients
+}) {
   const [ingredientsDialogOpen, setIngredientsDialogOpen] = useState(false);
 
   return (
@@ -154,10 +222,11 @@ function MenuItem({index, drink, ingredientsList, handleNameInput, handlePriceIn
     </TableRow>
 
     <MenuIngredientsDialog
+      index={index}
       open={ingredientsDialogOpen}
       setOpen={setIngredientsDialogOpen}
       drink={drink}
-      ingredientsList={ingredientsList}
+      setDrinkIngredients={setDrinkIngredients}
     />
     </>
   )
@@ -169,4 +238,20 @@ function isValidMoneyInput(value) {
 
 function isValidMoneyFinal(value) {
   return /^(0|[1-9][0-9]{0,2})(,\d{3})*(\.\d{1,2})?$/.test(value);
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+      }
+  }
+  return cookieValue;
 }
