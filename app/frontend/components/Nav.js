@@ -13,6 +13,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import HomeIcon from '@mui/icons-material/Home';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CoffeeMakerIcon from '@mui/icons-material/CoffeeMaker';
+import CoffeeIcon from '@mui/icons-material/Coffee';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
@@ -144,7 +145,7 @@ export default function PermanentDrawer(props) {
         <ListItem key="My Orders" disablePadding>
           <ListItemButton onClick={() => navigate("app/my-orders")}>
             <ListItemIcon>
-              <ShoppingCartIcon />
+              <CoffeeIcon />
             </ListItemIcon>
             <ListItemText>My Orders</ListItemText>
           </ListItemButton>

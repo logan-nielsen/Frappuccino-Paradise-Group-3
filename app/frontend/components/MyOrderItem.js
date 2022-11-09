@@ -22,9 +22,8 @@ export default function MyOrderItem({ order }) {
       <CardContent>
         <Stack spacing={2}>
           <div>
-            <Typography component="h3" variant="h5">{order.customerName}</Typography>
+            <Typography component="h3" variant="h5">{ order.isReady ? "Ready for Pickup" : "In Progress" }</Typography>
             <Typography>Order placed at {order.formatted_time}</Typography>
-            <Typography>Status: { order.isReady ? "ready for pickup" : "in progress" }</Typography>
 
             <ul>
               { orderItems }

@@ -23,14 +23,12 @@ export default function MyOrdersPage() {
   <MyOrderItem
     key={index} 
     order={order}
-    setReady={setReady}
-    setDelivered={setDelivered}
   />
   )
 
   return (
   <Stack spacing={2}>
-    <Typography component="h2" variant="h4">Manage Orders</Typography>
+    <Typography component="h2" variant="h4">My Orders</Typography>
     { orderItems }
   </Stack>
   )

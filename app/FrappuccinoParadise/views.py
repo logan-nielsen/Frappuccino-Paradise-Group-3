@@ -416,8 +416,7 @@ def set_order_delivered(request):
 
 @login_required
 def get_my_orders(request):
-    user_name = request.username
-    my_orders = Order.objects.filter(customerName=user_name).order_by('date', 'time')
+    my_orders = Order.objects.filter(customer=request.user).filter(isDelivered=False).order_by('date', 'time')
     orders_list = list(my_orders.values())
 
     for i in range(len(my_orders)):
