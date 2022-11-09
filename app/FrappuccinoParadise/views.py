@@ -201,18 +201,18 @@ def get_logged_shifts(request):
 @login_required
 @user_passes_test(is_manager)
 def employees(request):
-    response = {}
+    response = []
+    error = None
     try:
-        for user in Group.objects.get("Baristas").user_set.all():
-            response[user.id] = {
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            }
-        response['error'] = None
+        users = User.objects.filter(groups__name='Baristas').exclude(groups__name='Managers');
+        for user in users:
+            response.append({
+                'id': user.id,
+                'name': user.get_full_name(),
+            })
     except:
-        response['error'] = "Error retrieving employee information"
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+        response.append({'error': "Error retrieving employee information"})
+    return JsonResponse(response, status= 400 if error !=None else 200, safe=False)
 
 # Used while selecting which customer to elevate to a barista
 # Returns the full name of each customer
@@ -230,7 +230,7 @@ def get_customers(request):
                 'name': user.get_full_name(),
             })
     except:
-        response['error'] = "Error retrieving employee information"
+        response.append({'error': "Error retrieving employee information"})
     return JsonResponse(response, status= 400 if error !=None else 200, safe=False)
 
 # For managers to see an employee's unpaid shifts
@@ -328,7 +328,7 @@ def hire(request):
 @login_required
 @user_passes_test(is_manager)
 def fire(request):
-    userId = request.POST['user_id']
+    userId = request.POST['id']
     response = {}
     try:
         user = User.objects.get(id=userId)
