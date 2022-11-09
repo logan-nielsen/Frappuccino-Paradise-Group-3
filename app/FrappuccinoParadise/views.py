@@ -110,7 +110,7 @@ def place_order(request):
             manager.account.credit += Money(cost, 'USD')
             manager.account.save()
             # Create order
-            o = Order(customerName=user.username, cost=cost)
+            o = Order(customer=user, cost=cost)
             o.save()
             for item in order:
                 orderItem = OrderItem(
@@ -127,7 +127,7 @@ def place_order(request):
                     )
     except Exception as e:
         error = 'Error placing order'
-    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
+    return JsonResponse({'error': error}, status= 400 if error == None else 200)
 
 # Get list of orders
 # Returns a list of orders
@@ -142,6 +142,9 @@ def get_orders(request):
         orderItemsList = list(orderItems.values())
 
         ordersList[i]['formatted_time'] = orders[i].time.strftime("%#I:%M %p")
+
+        customer = orders[i].customer
+        ordersList[i]['customer_name'] = customer.username
 
         for j in range(len(orderItems)):
             addOns = orderItems[j].addon_set.all()
@@ -413,8 +416,7 @@ def set_order_delivered(request):
 
 @login_required
 def get_my_orders(request):
-    user_name = request.username
-    my_orders = Order.objects.filter(customerName=user_name).order_by('date', 'time')
+    my_orders = Order.objects.filter(customer=request.user).filter(isDelivered=False).order_by('date', 'time')
     orders_list = list(my_orders.values())
 
     for i in range(len(my_orders)):
