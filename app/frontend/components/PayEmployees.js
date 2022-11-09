@@ -18,7 +18,7 @@ export default function PayEmployees() {
   }
 
   const employeeItems = employees.map((employee, index) => 
-    <p key={index}>{employee.name}: {employee.hours}</p>
+    <p key={index}>{employee.name}: {employee.hours} hours</p>
   );
 
   return (

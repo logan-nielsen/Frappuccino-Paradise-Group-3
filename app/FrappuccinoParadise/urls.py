@@ -10,6 +10,7 @@ urlpatterns = [
   path("api/loghours/", views.add_shift, name="add_shift"),
   path("api/getshifts/", views.get_logged_shifts, name='get_logged_shifts'),
   path("api/employees/", views.employees, name='employees'),
+  path("api/getcustomers/", views.get_customers, name='get_customers'),
   path("api/getunpaid/", views.get_unpaid, name="get_unpaid"),
   path("api/pay/", views.pay, name="pay"),
   path("api/hire/", views.hire, name="hire"),
