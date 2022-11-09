@@ -5,16 +5,24 @@ export default function PayEmployees() {
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
-    fetch("api/getunpaid")
-      .then(response => response.json())
-      .then(json => {
-        setEmployees(json);
-      })
+    getUnpaid();
   }, []);
+
+  function getUnpaid() {
+    fetch("api/getunpaid")
+    .then(response => response.json())
+    .then(json => {
+      setEmployees(json);
+    })
+  }
 
   function payEmployees() {
     fetch("api/pay/")
       .then(response => response.json())
+      .then(json => {
+
+        getUnpaid();
+      })
   }
 
   const employeeItems = employees.map((employee, index) => 

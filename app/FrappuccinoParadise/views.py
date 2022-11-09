@@ -277,7 +277,7 @@ def pay(request):
     response = {
         'paid': list(),
         'unpaid': list(),
-        'errors': set(),
+        'errors': list(),
     }
     for shift in shifts:
         try:
@@ -303,7 +303,8 @@ def pay(request):
         except Exception as e:
             response['errors'].add("{e}\n")
             response['unpaid'].append(shift.id)
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+    
+    return JsonResponse(response, status= 400 if len(response['errors']) > 0 else 200)
 
 # Elevate user to barista status
 # No return besides errors
