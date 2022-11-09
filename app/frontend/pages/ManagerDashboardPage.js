@@ -1,6 +1,8 @@
 import { Alert, Box, Button, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
+import AddBarista from '../components/AddBarista';
 import BuyInventory from '../components/BuyInventory';
+import FireBarista from '../components/FireBarista';
 import ManageMenu from '../components/ManageMenu';
 import PayEmployees from '../components/PayEmployees';
 
@@ -53,6 +55,8 @@ export default function ManagerDashboardPage() {
           <Tab label="Pay Employees" value={0} />
           <Tab label="Manage Menu" value={1} />
           <Tab label="Buy Inventory" value={2} />
+          <Tab label="Add Barista" value={3} />
+          <Tab label="Fire Barista" value={4} />
         </Tabs>
       </Box>
       <TabPanel value={tabValue} index={0}>
@@ -63,6 +67,12 @@ export default function ManagerDashboardPage() {
       </TabPanel>
       <TabPanel value={tabValue} index={2}>
         <BuyInventory openSnackbar={openSnackbar} />
+      </TabPanel>
+      <TabPanel value={tabValue} index={3}>
+        <AddBarista openSnackbar={openSnackbar} />
+      </TabPanel>
+      <TabPanel value={tabValue} index={4}>
+        <FireBarista openSnackbar={openSnackbar} />
       </TabPanel>
     </Box>
     

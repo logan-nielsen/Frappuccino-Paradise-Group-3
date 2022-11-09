@@ -127,7 +127,7 @@ def place_order(request):
                     )
     except Exception as e:
         error = 'Error placing order'
-    return JsonResponse({'error': error}, status= 400 if error == None else 200)
+    return JsonResponse({'error': error}, status= 400 if error != None else 200)
 
 # Get list of orders
 # Returns a list of orders
@@ -201,18 +201,37 @@ def get_logged_shifts(request):
 @login_required
 @user_passes_test(is_manager)
 def employees(request):
-    response = {}
+    response = []
+    error = None
     try:
-        for user in Group.objects.get("Baristas").user_set.all():
-            response[user.id] = {
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-            }
-        response['error'] = None
+        users = User.objects.filter(groups__name='Baristas').exclude(groups__name='Managers');
+        for user in users:
+            response.append({
+                'id': user.id,
+                'name': user.get_full_name(),
+            })
     except:
-        response['error'] = "Error retrieving employee information"
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+        response.append({'error': "Error retrieving employee information"})
+    return JsonResponse(response, status= 400 if error !=None else 200, safe=False)
+
+# Used while selecting which customer to elevate to a barista
+# Returns the full name of each customer
+@login_required
+@user_passes_test(is_manager)
+def get_customers(request):
+    response = []
+    error = None
+    try:
+        customers = User.objects.filter(groups__name='Customers').exclude(groups__name='Managers').exclude(groups__name='Baristas');
+
+        for user in customers:
+            response.append({
+                'id': user.id,
+                'name': user.get_full_name(),
+            })
+    except:
+        response.append({'error': "Error retrieving employee information"})
+    return JsonResponse(response, status= 400 if error !=None else 200, safe=False)
 
 # For managers to see an employee's unpaid shifts
 # Returns date and number of hours for each unpaid shift
@@ -291,11 +310,10 @@ def pay(request):
 @login_required
 @user_passes_test(is_manager)
 def hire(request):
-    username = request.POST['username']
-    email = request.POST['email']
+    userId = request.POST['id']
     response = {}
     try:
-        user = User.objects.get(username=username, email=email)
+        user = User.objects.get(pk=userId)
         baristas = Group.objects.get(name='Baristas')
         user.groups.add(baristas)
         response['error'] = None
@@ -310,7 +328,7 @@ def hire(request):
 @login_required
 @user_passes_test(is_manager)
 def fire(request):
-    userId = request.POST['user_id']
+    userId = request.POST['id']
     response = {}
     try:
         user = User.objects.get(id=userId)
