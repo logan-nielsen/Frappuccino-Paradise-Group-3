@@ -12,6 +12,7 @@ import AccountPage from './pages/AccountPage';
 import HomePage from './pages/HomePage';
 import ManageOrdersPage from './pages/ManageOrdersPage';
 import ManagerDashboardPage from './pages/ManagerDashboardPage';
+import MyOrdersPage from './pages/MyOrdersPage';
 import OrderPage from './pages/OrderPage';
 
 import './styles/App.css';
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="app/home" element={<HomePage />} />
               <Route path="app/account" element={<AccountPage />} />
               <Route path="app/order" element={<OrderPage />} />
+              <Route path="app/my-orders" element={<MyOrdersPage />} />
               <Route path="app/manage-orders" element={<ManageOrdersPage />} />
               <Route path="app/manager-dashboard" element={<ManagerDashboardPage />} />
             </Routes>

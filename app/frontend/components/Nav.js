@@ -141,6 +141,14 @@ export default function PermanentDrawer(props) {
             <ListItemText>Order</ListItemText>
           </ListItemButton>
         </ListItem>
+        <ListItem key="My Orders" disablePadding>
+          <ListItemButton onClick={() => navigate("app/my-orders")}>
+            <ListItemIcon>
+              <ShoppingCartIcon />
+            </ListItemIcon>
+            <ListItemText>My Orders</ListItemText>
+          </ListItemButton>
+        </ListItem>
 
         {isEmployee && 
           <ListItem key="Manage Orders" disablePadding>

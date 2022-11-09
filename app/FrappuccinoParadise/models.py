@@ -37,7 +37,7 @@ class IngredientItem(models.Model):
 
 
 class Order(models.Model):
-    customerName = models.CharField(default='', max_length=50)
+    customer = models.ForeignKey(User, on_delete=models.CASCADE)
     cost = MoneyField(default=0, max_digits=5, decimal_places=2, default_currency='USD')
     isReady = models.BooleanField(default=False)
     isDelivered = models.BooleanField(default=False)

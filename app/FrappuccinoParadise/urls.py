@@ -26,5 +26,6 @@ urlpatterns = [
   path("api/addmenuitem/", views.add_menu_item, name="add_menu_item"),
   path("api/removemenuitem/", views.remove_menu_item, name="remove_menu_item"),
   path("api/editmenu/", views.edit_menu, name="edit_menu"),
+  path("api/myorders/", views.get_my_orders, name="get_my_orders"),
   re_path(r'^(?!api.*$).*', views.index, name='index'),
 ]
