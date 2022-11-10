@@ -48,14 +48,10 @@ export default function AccountPage() {
         .then(response => response.json())
         .then(json => setShifts(json));
     }
-    console.log("Finihed setting shifts")
-    console.log(shifts)
   }, [isBarista])
 
   var shiftItems = undefined;
   if (shifts !== undefined) {
-    console.log("Adding shiftItems")
-    console.log(shifts)
     shiftItems = shifts.map((shift, index) => {
       if (shift.paid) {
         return <p key={index}>{shift.date}: {shift.hours} hours. Paid.</p>
