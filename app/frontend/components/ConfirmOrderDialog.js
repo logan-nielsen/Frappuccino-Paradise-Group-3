@@ -4,6 +4,16 @@ import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
 
 export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder }) {
+  const [price, setPrice] = useState(0);
+
+  useEffect(() => {
+    console.log(order)
+    let totalPrice = 0;
+    for (order of order) {
+      totalPrice += order.cost;
+    }
+    setPrice(totalPrice);
+  }, [order])
 
   function handleClose() {
     setOpen(false)
@@ -42,6 +52,7 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder })
           spacing={2}
           sx={{ width: '100%' }}
         >
+          <Typography>Total Price: ${price.toFixed(2)}</Typography>
           { orderItems }
 
           {/* Display a message if no drinks have been added to the order */}
