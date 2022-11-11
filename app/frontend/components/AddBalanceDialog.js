@@ -75,6 +75,7 @@ export default function AddBalanceDialog({ open, setOpen, addBalance, newSnackba
             name="amount"
             placeholder='0'
             required
+            autoFocus
             value={balanceIncrease}
             onChange={handleBalanceInput}
           />

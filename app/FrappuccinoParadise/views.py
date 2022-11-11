@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
+from django.shortcuts import redirect
+from django.contrib.auth import login, authenticate
 
 from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
 
@@ -350,7 +352,8 @@ def new_account(request):
     firstName = request.POST['first_name']
     lastName = request.POST['last_name']
     email = request.POST['email']
-    response = {}
+    error = None;
+
     try:
         customers = Group.objects.get(name='Customers')
         newuser = User.objects.create_user(
@@ -364,12 +367,21 @@ def new_account(request):
         newuser.save()
         account = Account(user=newuser)
         account.save()
-        response['error'] = None
+
+        user = authenticate(username=username, password=password)
+        login(request, user)
+
     except Group.DoesNotExist:
-        response['error'] = "Error creating new customer"
+        error = "Error creating new customer"
     except:
-        response['error'] = "Error creating user"
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+        error = "Error creating user"
+
+    if error == None:
+        return redirect('/app/')
+    
+    else:
+        return JsonResponse({'error': error}, status= 400)
+    
 
 # Get account information
 # Returns first_name, last_name, username, email, credit, currency, groups
