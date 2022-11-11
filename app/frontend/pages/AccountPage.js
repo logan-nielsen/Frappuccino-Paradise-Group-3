@@ -16,6 +16,7 @@ export default function AccountPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState();
   const [isBarista, setIsBarista] = useState(false);
+  const [shifts, setShifts] = useState();
 
 
   // Get if the user is an employee and general user information
@@ -39,6 +40,26 @@ export default function AccountPage() {
         }
       })
   }, [])
+
+  // Get last 20 shifts for barista
+  useEffect(() => {
+    if (isBarista) {
+      fetch("api/getshifts/")
+        .then(response => response.json())
+        .then(json => setShifts(json));
+    }
+  }, [isBarista])
+
+  var shiftItems = undefined;
+  if (shifts !== undefined) {
+    shiftItems = shifts.map((shift, index) => {
+      if (shift.paid) {
+        return <p key={index}>{shift.date}: {shift.hours} hours. Paid.</p>
+      } else {
+        return <p key={index}>{shift.date}: {shift.hours} hours. Not paid.</p>
+      }
+    });
+  }
 
   function handleHoursInput(event) {
     let value = event.target.value
@@ -156,6 +177,9 @@ export default function AccountPage() {
                 mt: 2,
               }}
             >Add</Button>
+          </Box>
+          <Box>
+          {shiftItems}
           </Box>
         </Stack>
       }

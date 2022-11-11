@@ -185,18 +185,20 @@ def add_shift(request):
 @login_required
 @user_passes_test(is_employee)
 def get_logged_shifts(request):
-    response = {}
+    response = []
+    error = False
     try:
         for shift in request.user.account.timecard_set.order_by('-date')[:20]:
-            response[shift.id] = {
+            response.append({
+                'id': shift.id,
                 'date': shift.date,
                 'hours': shift.hours,
                 'paid': shift.paid,
-            }
-        response['error'] = None
+            })
     except:
-        response['error'] = "Error retrieving shifts"
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+        response.append({"error": "Error retrieving shifts"})
+        error = True
+    return JsonResponse(response, safe=False, status=400 if error else 200)
 
 # For managers to see their employees
 # Returns username, first name and last name of each employee
