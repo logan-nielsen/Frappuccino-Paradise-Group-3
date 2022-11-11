@@ -29,7 +29,11 @@ export default function MyOrdersPage() {
   return (
   <Stack spacing={2}>
     <Typography component="h2" variant="h4">My Orders</Typography>
-    { orderItems }
+    {orderItems.length > 0 ?
+      { orderItems }
+    :
+      <Typography>You haven't placed any orders</Typography>
+    }
   </Stack>
   )
 }

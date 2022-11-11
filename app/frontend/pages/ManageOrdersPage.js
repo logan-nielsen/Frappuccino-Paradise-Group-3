@@ -77,7 +77,11 @@ export default function ManageOrdersPage() {
   return (
     <Stack spacing={2}>
       <Typography component="h2" variant="h4">Manage Orders</Typography>
-      { manageOrderItems }
+      {manageOrderItems.length > 0 ?
+        { manageOrderItems }
+      :
+        <Typography>There are no pending orders</Typography>
+      }
     </Stack>
   )
 }
