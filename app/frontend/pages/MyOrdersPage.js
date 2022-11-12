@@ -31,7 +31,7 @@ export default function MyOrdersPage() {
     <Stack spacing={2}>
       <Typography component="h2" variant="h4">My Orders</Typography>
       {orderItems.length > 0 ?
-        { orderItems }
+        orderItems
       :
         <Typography>You haven't placed any orders</Typography>
       }
