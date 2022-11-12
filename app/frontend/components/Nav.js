@@ -31,13 +31,13 @@ export default function PermanentDrawer(props) {
   const [isManager, setIsManager] = useState(false)
 
   useEffect(() => {
-    fetch('api/isemployee')
+    fetch('api/isemployee/')
       .then(response => response.json())
       .then(json => {
         setIsEmployee(json.is_employee)
       })
 
-    fetch('api/ismanager')
+    fetch('api/ismanager/')
       .then(response => response.json())
       .then(json => {
         setIsManager(json.is_manager)

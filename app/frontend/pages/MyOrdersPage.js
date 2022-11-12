@@ -11,29 +11,30 @@ export default function MyOrdersPage() {
   }, []);
 
   function getOrders() {
-  fetch('api/myorders/')
-    .then(response => response.json())
-    .then(json => {
-      setOrders(json);
-      console.log(json);
-    })
+    fetch('api/getmyorders/')
+      .then(response => response.json())
+      .then(json => {
+        setOrders(json);
+        console.log(json);
+      })
   }
 
   const orderItems = orders.map((order, index) => 
-  <MyOrderItem
-    key={index} 
-    order={order}
-  />
-  )
+    <MyOrderItem
+      key={index} 
+      order={order}
+    />
+  );
+
 
   return (
-  <Stack spacing={2}>
-    <Typography component="h2" variant="h4">My Orders</Typography>
-    {orderItems.length > 0 ?
-      { orderItems }
-    :
-      <Typography>You haven't placed any orders</Typography>
-    }
-  </Stack>
+    <Stack spacing={2}>
+      <Typography component="h2" variant="h4">My Orders</Typography>
+      {orderItems.length > 0 ?
+        { orderItems }
+      :
+        <Typography>You haven't placed any orders</Typography>
+      }
+    </Stack>
   )
 }

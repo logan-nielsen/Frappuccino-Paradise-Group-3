@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { Stack } from '@mui/system';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder }) {
+export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder, deleteDrinkOrder }) {
   const [price, setPrice] = useState(0);
 
   useEffect(() => {
@@ -25,16 +26,33 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder })
   }
 
   const orderItems = order.map((item, index) =>
-    <Box key={index}>
-      <Typography>{ item.drink.name }: { item.amount }</Typography>
+    <Grid 
+      key={index} 
+      container 
+      spacing={2}
+    >
+      <Grid item xs={1}>
+        <IconButton 
+          color="error"
+          sx={{
+            paddingTop: '0px'
+          }}
+          onClick={() => deleteDrinkOrder(index)}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Grid>
+      <Grid item xs={11}>
+        <Typography>{ item.drink.name }: { item.amount }</Typography>
 
-      {/* List add ons dynamically */}
-      {item.addOns.map((addOn, addOnIndex) => 
-        <div key={addOnIndex} className='indented'>
-          <Typography>{addOn.name}: {addOn.number}</Typography>
-        </div>
-      )}
-    </Box>
+        {/* List add ons dynamically */}
+        {item.addOns.map((addOn, addOnIndex) => 
+          <div key={addOnIndex} className='indented'>
+            <Typography>{addOn.name}: {addOn.number}</Typography>
+          </div>
+        )}
+      </Grid>
+    </Grid>
   )
 
   return (
@@ -49,7 +67,7 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder })
       <DialogTitle>Confirm Order</DialogTitle>
       <DialogContent>
         <Stack 
-          spacing={2}
+          spacing={1}
           sx={{ width: '100%' }}
         >
           <Typography>Total Price: ${price.toFixed(2)}</Typography>

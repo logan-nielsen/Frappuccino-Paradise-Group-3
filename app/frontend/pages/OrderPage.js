@@ -24,6 +24,12 @@ export default function OrderPage() {
     setOrder([...order, drinkOrder])
   }
 
+  function deleteDrinkOrder(itemIndex) {
+    let newOrder = structuredClone(order);
+    newOrder = newOrder.filter((item, index) => index != itemIndex);
+    setOrder(newOrder);
+  }
+
   function placeOrder() {
     const formData = new FormData()
     formData.append(
@@ -79,6 +85,7 @@ export default function OrderPage() {
       setOpen={setOrderDialogOpen}
       order={order}
       placeOrder={placeOrder}
+      deleteDrinkOrder={deleteDrinkOrder}
     />
     </>
   );
