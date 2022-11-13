@@ -8,7 +8,6 @@ export default function ConfirmOrderDialog({ open, setOpen, order, placeOrder, d
   const [price, setPrice] = useState(0);
 
   useEffect(() => {
-    console.log(order)
     let totalPrice = 0;
     for (order of order) {
       totalPrice += order.cost;

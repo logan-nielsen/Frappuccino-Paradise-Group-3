@@ -15,7 +15,6 @@ export default function MyOrdersPage() {
       .then(response => response.json())
       .then(json => {
         setOrders(json);
-        console.log(json);
       })
   }
 

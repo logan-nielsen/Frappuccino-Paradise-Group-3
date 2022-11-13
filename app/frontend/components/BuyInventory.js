@@ -55,7 +55,6 @@ export default function BuyInventory() {
         ingredients.forEach(element => {
           element.number = 0;
         });
-        console.log(ingredients);
 
         setInventory(ingredients);
       })
