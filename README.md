@@ -40,10 +40,17 @@ A sqlite database is used to store data.
 10. In another terminal window, start the development server: ```$ python manage.py runserver```
 
 ## Unit Testing Instructions
+All unit tests can be automatically run by executing the command ```$ python -Wa manage.py test```
 
-The unit tests for the website can be run using the following command in the root directory of the project: ```$ ./manage.py test```.
+This will automatically run any script in the application whose name starts with 'test'
 
-More information on running unit tests in Django can be found at the following website: https://docs.djangoproject.com/en/4.1/topics/testing/overview/
+You can run tests only from a certain package or module by supplying them at the end ```$ python -Wa manage.py test packagename```
+
+In our program most tests should be placed in the tests package found in the FrappuccinoParadise app.
+
+Examples of testing scripts can be found at ```https://docs.djangoproject.com/en/4.1/topics/testing/overview/```
+
+
 
 ## System Testing Instructions
 
