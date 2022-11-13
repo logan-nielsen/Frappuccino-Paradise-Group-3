@@ -178,7 +178,7 @@ def add_shift(request):
         request.user.account.timecard_set.create(date=date, hours=hours)
     except:
         error = "Error logging hours"
-    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
+    return JsonResponse({'error': error}, status= 400 if error != None else 200)
 
 # For barista to see the last (up to) 20 logged shifts
 # Returns date, number of hours and whether employee has been paid for each of those shifts
