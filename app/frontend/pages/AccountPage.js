@@ -52,6 +52,10 @@ export default function AccountPage() {
 
   // Get last 20 shifts for barista
   useEffect(() => {
+    getShifts();
+  }, [isBarista])
+
+  function getShifts() {
     if (isBarista) {
       fetch("api/getshifts/")
         .then(response => response.json())
@@ -68,7 +72,7 @@ export default function AccountPage() {
           openSnackbar("Failed to retrieve shifts", true);
         })
     }
-  }, [isBarista])
+  }
 
   var shiftItems = undefined;
   if (shifts !== undefined) {
@@ -127,6 +131,7 @@ export default function AccountPage() {
           openSnackbar("Failed to submit hours", true);
         }
         else {
+          getShifts();
           openSnackbar("Hours Saved");
           setHoursToAdd("");
         }
