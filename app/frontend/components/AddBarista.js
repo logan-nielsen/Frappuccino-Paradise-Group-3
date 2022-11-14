@@ -17,7 +17,16 @@ export default function AddBarista({ openSnackbar }) {
     fetch('api/getcustomers/')
       .then(response => response.json())
       .then(json => {
-        setOptions(json);
+        if (json.error) {
+          openSnackbar(json.error, true);
+        }
+        else {
+          setOptions(json);
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to get customers");
       })
   }
 
@@ -51,6 +60,10 @@ export default function AddBarista({ openSnackbar }) {
           setValue(null);
           getCustomers();
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to add barista");
       })
   }
 

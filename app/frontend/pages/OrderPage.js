@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DrinkDialog from '../components/DrinkDialog';
-import { Button, Grid } from '@mui/material';
+import { Alert, Button, Grid, Snackbar } from '@mui/material';
 import DrinkGridItem from '../components/DrinkGridItem';
 import { Stack } from '@mui/system';
 import ConfirmOrderDialog from '../components/ConfirmOrderDialog';
@@ -10,13 +10,25 @@ export default function OrderPage() {
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [drinks, setDrinks] = useState([]);
   const [selectedDrink, setSelectedDrink] = useState();
-  const [order, setOrder] = useState([])
+  const [order, setOrder] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarError, setSnackbarError] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState();
 
   useEffect(() => {
     fetch('api/getmenu/')
       .then(response => response.json())
-      .then(allDrinks => {
-        setDrinks(allDrinks)
+      .then(json => {
+        if (json.error) {
+          openSnackbar(json.error, true);
+        }
+        else {
+          setDrinks(json);
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to retrieve menu", true);
       })
   }, [])
   
@@ -45,9 +57,33 @@ export default function OrderPage() {
       method: 'POST',
       body: formData
     })
+      .then(response => response.json())
+      .then(json => {
+        if (json.error) {
+          openSnackbar(json.error, true);
+        }
+        else {
+          openSnackbar("Successfully placed order")
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to place order", true);
+      })
 
     setSelectedDrink(undefined);
     setOrder([])
+  }
+
+  function openSnackbar(message, error=false) {
+    setSnackbarError(error);
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  }
+
+  function handleSnackbarClose() {
+    setSnackbarOpen(false);
+    setSnackbarMessage(undefined);
   }
 
   const drinkGridItems = drinks.map((drink, index) => 
@@ -78,6 +114,7 @@ export default function OrderPage() {
       addDrinkOrder={addDrinkOrder}
       open={drinkDialogOpen} 
       setOpen={setDrinkDialogOpen} 
+      openSnackbar={openSnackbar}
     />
 
     <ConfirmOrderDialog 
@@ -87,6 +124,19 @@ export default function OrderPage() {
       placeOrder={placeOrder}
       deleteDrinkOrder={deleteDrinkOrder}
     />
+
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={6000}
+      onClose={handleSnackbarClose}
+    >
+      <Alert 
+        onClose={handleSnackbarClose}
+        severity={ snackbarError ? 'error' : 'success' }
+      >
+        { snackbarMessage }
+      </Alert>
+    </Snackbar>
     </>
   );
 }
