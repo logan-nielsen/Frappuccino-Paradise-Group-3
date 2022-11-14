@@ -17,8 +17,14 @@ export default function FireBarista({ openSnackbar }) {
     fetch('api/employees/')
       .then(response => response.json())
       .then(json => {
-        setOptions(json);
+        if (json.error) {
+          openSnackbar(json.error, true);
+        }
+        else {
+          setOptions(json);
+        }
       })
+      .catch("Failed to retrieve employees", true);
   }
 
   function save() {
@@ -51,6 +57,10 @@ export default function FireBarista({ openSnackbar }) {
           setValue(null);
           getBaristas();
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to fire barista", true);
       })
   }
 

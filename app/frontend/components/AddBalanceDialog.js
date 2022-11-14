@@ -2,7 +2,7 @@ import { Button, Dialog, DialogContent, DialogTitle, TextField } from '@mui/mate
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 
-export default function AddBalanceDialog({ open, setOpen, addBalance, newSnackbar }) {
+export default function AddBalanceDialog({ open, setOpen, addBalance, openSnackbar }) {
 
   const [balanceIncrease, setBalanceIncrease] = useState("")
 	
@@ -41,16 +41,20 @@ export default function AddBalanceDialog({ open, setOpen, addBalance, newSnackba
       .then(response => response.json())
       .then(json => {
         if (json.error) {
-          newSnackbar("")
+          openSnackbar(json.error, true)
         }
         else {
-          addBalance(balanceIncrease)
-          newSnackbar("Balance Increase Added")
-          setBalanceIncrease("")
+          addBalance(balanceIncrease);
+          openSnackbar("Balance Increase Added");
+          setBalanceIncrease("");
+          setOpen(false);
         }
       })
-      .finally(() => {
-        setOpen(false)
+      .catch((err) => {
+        console.log(err)
+        openSnackbar(() => {
+          openSnackbar("Failed to add account balance", true);
+        })
       })
   }
 
@@ -75,6 +79,7 @@ export default function AddBalanceDialog({ open, setOpen, addBalance, newSnackba
             name="amount"
             placeholder='0'
             required
+            autoFocus
             value={balanceIncrease}
             onChange={handleBalanceInput}
           />

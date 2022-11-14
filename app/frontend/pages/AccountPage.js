@@ -12,9 +12,9 @@ export default function AccountPage() {
   const [addBalanceModalOpen, setAddBalanceModalOpen] = useState(false)
   const [hoursToAdd, setHoursToAdd] = useState("")
   const [submitting, setSubmitting] = useState(false);
-  const [payrollError, setPayrollError] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState();
+  const [snackbarError, setSnackbarError] = useState(false);
   const [isBarista, setIsBarista] = useState(false);
   const [shifts, setShifts] = useState();
 
@@ -24,31 +24,55 @@ export default function AccountPage() {
     fetch("api/account/")
       .then(response => response.json())
       .then(json => {
-        setName(`${json.first_name} ${json.last_name}`)
-        setEmail(json.email)
-        setBalance(json.credit)
-
-        if (json.groups.includes("Managers")) {
-          setRole("Manager");
-        }
-        else if (json.groups.includes("Baristas")) {
-          setRole("Barista");
-          setIsBarista(true);
+        if (!json.error) {
+          setName(`${json.first_name} ${json.last_name}`)
+          setEmail(json.email)
+          setBalance(json.credit)
+  
+          if (json.groups.includes("Managers")) {
+            setRole("Manager");
+          }
+          else if (json.groups.includes("Baristas")) {
+            setRole("Barista");
+            setIsBarista(true);
+          }
+          else {
+            setRole("Customer");
+          }
         }
         else {
-          setRole("Customer");
+          openSnackbar(json.error, true);
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to retrieve account information", true);
       })
   }, [])
 
   // Get last 20 shifts for barista
   useEffect(() => {
+    getShifts();
+  }, [isBarista])
+
+  function getShifts() {
     if (isBarista) {
       fetch("api/getshifts/")
         .then(response => response.json())
-        .then(json => setShifts(json));
+        .then(json => {
+          if (json.error) {
+            openSnackbar(json.error, true);
+          }
+          else {
+            setShifts(json);
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+          openSnackbar("Failed to retrieve shifts", true);
+        })
     }
-  }, [isBarista])
+  }
 
   var shiftItems = undefined;
   if (shifts !== undefined) {
@@ -72,9 +96,15 @@ export default function AccountPage() {
 		}
   }
 
-  function newSnackbar(message) {
-    setSnackbarMessage(message)
-    setSnackbarOpen(true)
+  function openSnackbar(message, error=false) {
+    setSnackbarError(error);
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  }
+
+  function handleSnackbarClose() {
+    setSnackbarOpen(false);
+    setSnackbarMessage(undefined);
   }
 
   function submitPayroll(e) {
@@ -98,17 +128,17 @@ export default function AccountPage() {
       .then(response => response.json())
       .then(json => {
         if (json.error) {
-          setPayrollError(true);
-          newSnackbar("Failed to submit hours");
+          openSnackbar("Failed to submit hours", true);
         }
         else {
-          newSnackbar("Hours Saved");
+          getShifts();
+          openSnackbar("Hours Saved");
           setHoursToAdd("");
         }
       })
-      .catch(() => {
-        setPayrollError(true);
-        newSnackbar("Failed to submit hours");
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to submit hours", true);
       })
       .finally(() => setSubmitting(false))
   }
@@ -189,7 +219,7 @@ export default function AccountPage() {
       open={addBalanceModalOpen} 
       setOpen={setAddBalanceModalOpen} 
       addBalance={addBalance}
-      newSnackbar={newSnackbar}
+      openSnackbar={openSnackbar}
     />
 
     <Snackbar
@@ -199,7 +229,7 @@ export default function AccountPage() {
     >
       <Alert 
         onClose={handleSnackbarClose}
-        severity={ payrollError ? 'error' : 'success' }
+        severity={ snackbarError ? 'error' : 'success' }
       >
         { snackbarMessage }
       </Alert>

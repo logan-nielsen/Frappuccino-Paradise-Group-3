@@ -6,7 +6,7 @@ import { Stack } from '@mui/system';
 let costInitialized = false;
 let addOnsInitialized = false;
 
-export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
+export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen, openSnackbar }) {
   const [amount, setAmount] = useState(1);
   const [addOns, setAddOns] = useState([]);
   const [cost, setCost] = useState();
@@ -15,11 +15,20 @@ export default function DrinkDialog({ drink, addDrinkOrder, open, setOpen }) {
     fetch('api/getingredients/')
       .then(response => response.json())
       .then(ingredients => {
-        ingredients.forEach(element => {
-          element.number = 0;
-        });
-
-        setAddOns(ingredients)
+        if (ingredients.error) {
+          openSnackbar(ingredients.error, true);
+        }
+        else {
+          ingredients.forEach(element => {
+            element.number = 0;
+          });
+  
+          setAddOns(ingredients)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to retrieve ingredients", true);
       })
   }, []);
 

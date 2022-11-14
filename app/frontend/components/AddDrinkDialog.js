@@ -61,13 +61,17 @@ export default function AddDrinkDialog({
       .then(response => response.json())
       .then(json => {
         if (json.error) {
-          openSnackbar('Failed to create drink', true);
+          openSnackbar(json.error, true);
         }
         else {
           openSnackbar('Successfully created drink');
           getMenu();
           handleClose();
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to create drink", true);
       })
   }
 

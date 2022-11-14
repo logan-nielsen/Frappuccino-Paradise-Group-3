@@ -31,13 +31,17 @@ export default function DeleteDrinkDialog({
       .then(response => response.json())
       .then(json => {
         if (json.error) {
-          openSnackbar('Failed to delete drink', true);
+          openSnackbar(json.error, true);
         }
         else {
           openSnackbar('Successfully deleted drink');
           setOpen(false);
           getMenu();
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to delete drink", true);
       })
   }
   

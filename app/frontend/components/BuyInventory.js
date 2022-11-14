@@ -2,7 +2,7 @@ import { Button, Grid, TextField, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 
-export default function BuyInventory() {
+export default function BuyInventory({ openSnackbar }) {
   const [inventory, setInventory] = useState([]);
   const [totalCost, setTotalCost] = useState(0);
 
@@ -19,6 +19,7 @@ export default function BuyInventory() {
   }, [inventory]);
 
   function buyInventory() {
+    // Check if anything is being added to the inventory
     let formData = new FormData();
     formData.append(
       'csrfmiddlewaretoken',
@@ -40,11 +41,16 @@ export default function BuyInventory() {
       .then(response => response.json())
       .then(json => {
         if (json.error) {
-          // Add error handling
+          openSnackbar(json.error, true);
         }
         else {
           getInventory();
+          openSnackbar("Successfully updated the inventory");
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to update inventory", true);
       })
   }
 
@@ -52,12 +58,20 @@ export default function BuyInventory() {
     fetch('api/getingredients/')
       .then(response => response.json())
       .then(ingredients => {
-        ingredients.forEach(element => {
-          element.number = 0;
-        });
-        console.log(ingredients);
-
-        setInventory(ingredients);
+        if (ingredients.error) {
+          openSnackbar(ingredients.error, true);
+        }
+        else {
+          ingredients.forEach(element => {
+            element.number = 0;
+          });
+  
+          setInventory(ingredients);
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to retrieve inventory", true);
       })
   }
 
@@ -110,6 +124,7 @@ export default function BuyInventory() {
       <Button 
         variant="contained" 
         onClick={buyInventory}
+        disabled={totalCost === 0}
         sx={{maxWidth: '200px'}}
       >
         Buy Inventory

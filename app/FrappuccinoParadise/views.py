@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from djmoney.money import Money
+from django.shortcuts import redirect
+from django.contrib.auth import login, authenticate
 
 from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
 
@@ -25,7 +27,18 @@ def index(request):
 # Returns a list of drink objects
 @login_required
 def get_menu(request):
-    return JsonResponse(list(Drink.objects.values()), safe=False)
+    error = None;
+    drinksList = None;
+    try:
+        drinksList = list(Drink.objects.values())
+    except:
+        error = "Failed to retrieve menu"
+    
+    return JsonResponse(
+        drinksList if error == None else {'error': error}, 
+        status= 400 if error !=None else 200,
+        safe=False
+    )
 
 # Get ingredients required to make a drink
 # Returns a list of IngredientItem objects
@@ -39,7 +52,18 @@ def get_recipe(request):
 # Returns a list of drink objects
 @login_required
 def get_ingredients(request):
-    return JsonResponse(list(Ingredient.objects.values()), safe=False)
+    error = None;
+    ingredientsList = None;
+    try:
+        ingredientsList = list(Ingredient.objects.values())
+    except:
+        error = "Failed to retrieve ingredients"
+
+    return JsonResponse(
+        ingredientsList if error == None else {'error': error}, 
+        status= 400 if error !=None else 200,
+        safe=False
+    )
 
 # Manger buys ingredients
 # Doesn't return anything besides errors
@@ -134,35 +158,43 @@ def place_order(request):
 @login_required
 @user_passes_test(is_employee)
 def get_orders(request):
-    orders = Order.objects.filter(isDelivered=False).order_by('date', 'time')
-    ordersList = list(orders.values())
+    error = None;
+    try:
+        orders = Order.objects.filter(isDelivered=False).order_by('date', 'time')
+        ordersList = list(orders.values())
 
-    for i in range(len(orders)):
-        orderItems = orders[i].orderitem_set.all()
-        orderItemsList = list(orderItems.values())
+        for i in range(len(orders)):
+            orderItems = orders[i].orderitem_set.all()
+            orderItemsList = list(orderItems.values())
 
-        ordersList[i]['formatted_time'] = orders[i].time.strftime("%#I:%M %p")
+            ordersList[i]['formatted_time'] = orders[i].time.strftime("%#I:%M %p")
 
-        customer = orders[i].customer
-        ordersList[i]['customer_name'] = customer.username
+            customer = orders[i].customer
+            ordersList[i]['customer_name'] = customer.username
 
-        for j in range(len(orderItems)):
-            addOns = orderItems[j].addon_set.all()
-            addOnsList = list(addOns.values())
-            orderItemsList[j]['addons'] = addOnsList
+            for j in range(len(orderItems)):
+                addOns = orderItems[j].addon_set.all()
+                addOnsList = list(addOns.values())
+                orderItemsList[j]['addons'] = addOnsList
 
-            for k in range(len(addOnsList)):
-                addOn = addOnsList[k]
-                ingredient = Ingredient.objects.get(pk=addOns[k].ingredient_id)
-                addOn['ingredient_name'] = ingredient.name
+                for k in range(len(addOnsList)):
+                    addOn = addOnsList[k]
+                    ingredient = Ingredient.objects.get(pk=addOns[k].ingredient_id)
+                    addOn['ingredient_name'] = ingredient.name
 
-            drink = Drink.objects.get(pk=orderItems[j].drink_id)
-            orderItemsList[j]['drink_name'] = drink.name
+                drink = Drink.objects.get(pk=orderItems[j].drink_id)
+                orderItemsList[j]['drink_name'] = drink.name
 
-        ordersList[i]['order_items'] = orderItemsList
+            ordersList[i]['order_items'] = orderItemsList
+    except:
+        error = "Failed to retrieve orders"
 
 
-    return JsonResponse(ordersList, safe=False)
+    return JsonResponse(
+        ordersList if error == None else {'error': error}, 
+        status= 400 if error !=None else 200,
+        safe=False
+    )
 
 # For barista to log a shift
 # Doesn't return anything besides errors
@@ -176,7 +208,7 @@ def add_shift(request):
         request.user.account.timecard_set.create(date=date, hours=hours)
     except:
         error = "Error logging hours"
-    return JsonResponse({'error': error}, status= 400 if error !='' else 200)
+    return JsonResponse({'error': error}, status= 400 if error != None else 200)
 
 # For barista to see the last (up to) 20 logged shifts
 # Returns date, number of hours and whether employee has been paid for each of those shifts
@@ -262,6 +294,7 @@ def get_unpaid(request):
     except:
         response.append({'error': "Error retrieving shifts for this user"})
         error = True
+
     return JsonResponse(
         response,
         safe=False,
@@ -279,7 +312,7 @@ def pay(request):
     response = {
         'paid': list(),
         'unpaid': list(),
-        'errors': set(),
+        'errors': list(),
     }
     for shift in shifts:
         try:
@@ -305,7 +338,8 @@ def pay(request):
         except Exception as e:
             response['errors'].add("{e}\n")
             response['unpaid'].append(shift.id)
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+    
+    return JsonResponse(response, status= 400 if len(response['errors']) > 0 else 200)
 
 # Elevate user to barista status
 # No return besides errors
@@ -351,7 +385,8 @@ def new_account(request):
     firstName = request.POST['first_name']
     lastName = request.POST['last_name']
     email = request.POST['email']
-    response = {}
+    error = None;
+
     try:
         customers = Group.objects.get(name='Customers')
         newuser = User.objects.create_user(
@@ -365,12 +400,21 @@ def new_account(request):
         newuser.save()
         account = Account(user=newuser)
         account.save()
-        response['error'] = None
+
+        user = authenticate(username=username, password=password)
+        login(request, user)
+
     except Group.DoesNotExist:
-        response['error'] = "Error creating new customer"
+        error = "Error creating new customer"
     except:
-        response['error'] = "Error creating user"
-    return JsonResponse(response, status= 400 if response['error'] !=None else 200)
+        error = "Error creating user"
+
+    if error == None:
+        return redirect('/app/')
+    
+    else:
+        return JsonResponse({'error': error}, status= 400)
+    
 
 # Get account information
 # Returns first_name, last_name, username, email, credit, currency, groups
@@ -407,60 +451,96 @@ def add_credit(request):
 
 @login_required
 def user_is_employee(request):
-      return JsonResponse({'is_employee': is_employee(request.user)})
+    error = None
+    try:
+        isEmployee = is_employee(request.user);
+    except:
+        error = "Failed to check user roles";
+    
+    return JsonResponse(
+        {'error': error } if error != None else {'is_employee': isEmployee}, 
+        status= 400 if error !=None else 200,
+        safe=False
+    )
 
 @login_required
 def user_is_manager(request):
-      return JsonResponse({'is_manager': is_manager(request.user)})
+    error = None
+    try:
+        isManager = is_manager(request.user);
+    except:
+        error = "Failed to check user roles";
+    
+    return JsonResponse(
+        {'error': error } if error != None else {'is_manager': isManager}, 
+        status= 400 if error !=None else 200,
+        safe=False
+    )
 
 @login_required
 @user_passes_test(is_employee)
 def set_order_ready(request):
-    id = request.POST['order_id']
-    order = Order.objects.get(pk=id)
-    order.isReady = True
-    order.save()
+    error = None;
+    try:
+        id = request.POST['order_id']
+        order = Order.objects.get(pk=id)
+        order.isReady = True
+        order.save()
+    except:
+        error = "Failed to mark order as ready";
 
-    return JsonResponse({'error': None})
+    return JsonResponse({'error': error}, status= 400 if error !=None else 200)
 
 @login_required
 @user_passes_test(is_employee)
 def set_order_delivered(request):
-    id = request.POST['order_id']
-    order = Order.objects.get(pk=id)
-    order.isDelivered = True
-    order.save()
+    error = None;
+    try:
+        id = request.POST['order_id']
+        order = Order.objects.get(pk=id)
+        order.isDelivered = True
+        order.save()
+    except:
+        error = "Failed to mark order as delivered";
 
-    return JsonResponse({'error': None})
+    return JsonResponse({'error': error}, status= 400 if error !=None else 200)
 
 
 @login_required
 def get_my_orders(request):
-    my_orders = Order.objects.filter(customer=request.user).filter(isDelivered=False).order_by('date', 'time')
-    orders_list = list(my_orders.values())
+    error = None;
+    try:
+        my_orders = Order.objects.filter(customer=request.user).filter(isDelivered=False).order_by('date', 'time')
+        orders_list = list(my_orders.values())
 
-    for i in range(len(my_orders)):
-        order_items = my_orders[i].orderitem_set.all()
-        order_items_list = list(order_items.values())
+        for i in range(len(my_orders)):
+            order_items = my_orders[i].orderitem_set.all()
+            order_items_list = list(order_items.values())
 
-        orders_list[i]['formatted_time'] = my_orders[i].time.strftime("%#I:%M %p")
+            orders_list[i]['formatted_time'] = my_orders[i].time.strftime("%#I:%M %p")
 
-        for j in range(len(order_items)):
-            add_ons = order_items[j].addon_set.all()
-            add_ons_list = list(add_ons.values())
-            order_items_list[j]['addons'] = add_ons_list
+            for j in range(len(order_items)):
+                add_ons = order_items[j].addon_set.all()
+                add_ons_list = list(add_ons.values())
+                order_items_list[j]['addons'] = add_ons_list
 
-            for k in range(len(add_ons_list)):
-                add_on = add_ons_list[k]
-                ingredient = Ingredient.objects.get(pk=add_ons[k].ingredient_id)
-                add_on['ingredient_name'] = ingredient.name
+                for k in range(len(add_ons_list)):
+                    add_on = add_ons_list[k]
+                    ingredient = Ingredient.objects.get(pk=add_ons[k].ingredient_id)
+                    add_on['ingredient_name'] = ingredient.name
 
-            drink = Drink.objects.get(pk=order_items[j].drink_id)
-            order_items_list[j]['drink_name'] = drink.name
+                drink = Drink.objects.get(pk=order_items[j].drink_id)
+                order_items_list[j]['drink_name'] = drink.name
 
-        orders_list[i]['order_items'] = order_items_list
+            orders_list[i]['order_items'] = order_items_list
+    except:
+        error = "Failed to get orders";
 
-    return JsonResponse(orders_list, safe=False)
+    return JsonResponse(
+        orders_list if error == None else {'error': error}, 
+        status= 400 if error !=None else 200,
+        safe=False
+    )
 
 
 @login_required

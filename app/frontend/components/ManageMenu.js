@@ -131,12 +131,16 @@ export default function ManageMenu({ openSnackbar }) {
       .then(response => response.json())
       .then(json => {
         if (json.error) {
-          openSnackbar('Failed to save menu', true);
+          openSnackbar(json.error, true);
         }
         else {
           openSnackbar('Successfully saved menu');
           getMenu();
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        openSnackbar("Failed to save menu", true);
       })
   }
 
