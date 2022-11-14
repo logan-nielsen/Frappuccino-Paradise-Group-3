@@ -53,7 +53,7 @@ export default function FireBarista({ openSnackbar }) {
           openSnackbar(json.error, true);
         }
         else {
-          openSnackbar('Successfully added barista');
+          openSnackbar('Successfully fired barista');
           setValue(null);
           getBaristas();
         }
