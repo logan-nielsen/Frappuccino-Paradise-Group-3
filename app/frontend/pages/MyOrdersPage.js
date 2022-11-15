@@ -27,7 +27,7 @@ export default function MyOrdersPage() {
       })
     .catch((err) => {
       console.log(err)
-      openSnackbar("Failed to retrieve orders", false);
+      openSnackbar("Failed to retrieve orders", true);
     })
   }
 
