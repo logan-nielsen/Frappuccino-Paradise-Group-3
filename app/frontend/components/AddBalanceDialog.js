@@ -52,9 +52,7 @@ export default function AddBalanceDialog({ open, setOpen, addBalance, openSnackb
       })
       .catch((err) => {
         console.log(err)
-        openSnackbar(() => {
-          openSnackbar("Failed to add account balance", true);
-        })
+        openSnackbar("Failed to add account balance", true);
       })
   }
 

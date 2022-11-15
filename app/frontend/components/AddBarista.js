@@ -26,7 +26,7 @@ export default function AddBarista({ openSnackbar }) {
       })
       .catch((err) => {
         console.log(err)
-        openSnackbar("Failed to get customers");
+        openSnackbar("Failed to get customers", true);
       })
   }
 
@@ -63,7 +63,7 @@ export default function AddBarista({ openSnackbar }) {
       })
       .catch((err) => {
         console.log(err)
-        openSnackbar("Failed to add barista");
+        openSnackbar("Failed to add barista", true);
       })
   }
 

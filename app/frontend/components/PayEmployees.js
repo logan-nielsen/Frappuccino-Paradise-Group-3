@@ -21,7 +21,7 @@ export default function PayEmployees({ openSnackbar }) {
       })
       .catch((err) => {
         console.log(err)
-        openSnackbar("Failed to retrieve employees with unpaid hours");
+        openSnackbar("Failed to retrieve employees with unpaid hours", true);
       })
   }
 
