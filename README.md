@@ -61,3 +61,8 @@ Customer role can be tested using a test account the credentials Username: custo
 Barista role can be tested using a test account the credentials Username: barista1 and Password: barista1password or Username: barista2 and Password: barista2password.
 
 The manager role can only be tested using the main manager account. This can be accessed using the manager's default credentials, which are Username: manager and Password: managerpassword.
+
+
+
+## Sprint Planning Documents
+Sprint planning docs can be found under `docs/sprintPlanningDocs/`.
