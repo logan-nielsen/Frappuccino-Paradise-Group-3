@@ -1,8 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from djmoney.money import Money
-from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
-from datetime import datetime
+from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem
 import json
 
 
@@ -72,7 +71,7 @@ class ManageOrdersTest(TestCase):
         self.assertTrue(order.isDelivered)
 
     
-    def testCustomerManageOrder(self):
+    def testUnauthorizedManageOrder(self):
         user = get_user_model().objects.get(username='customer1')
         self.client.force_login(user)
         

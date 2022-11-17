@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from djmoney.money import Money
-from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
+from FrappuccinoParadise.models import Ingredient
 
 
 # Create your tests here.
@@ -9,9 +9,14 @@ class PlaceOrderTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.get(username='customer1')
         self.client.force_login(self.user)
+        self.user.account.credit += Money(1000, 'USD')
+        self.user.account.save()
 
 
     def testInsufficientCredit(self):
+        self.user.account.credit = Money(0, 'USD')
+        self.user.account.save()
+
         response = self.client.post('/app/api/placeorder/', {
             'order': '''[
                     {
@@ -31,9 +36,6 @@ class PlaceOrderTests(TestCase):
     
 
     def testInsufficientInventory(self):
-        self.user.account.credit += Money(1000, 'USD')
-        self.user.account.save()
-
         response = self.client.post('/app/api/placeorder/', {
             'order': '''[
                     {
@@ -53,9 +55,6 @@ class PlaceOrderTests(TestCase):
     
     
     def testSimpleOrder(self):
-        self.user.account.credit += Money(1000, 'USD')
-        self.user.account.save()
-
         coffeeBeans = Ingredient.objects.get(name='Coffee Beans')
         coffeeBeans.amountPurchased = 20
         coffeeBeans.save()
@@ -74,9 +73,6 @@ class PlaceOrderTests(TestCase):
     
 
     def testDrinkAmount(self):
-        self.user.account.credit += Money(1000, 'USD')
-        self.user.account.save()
-
         coffeeBeans = Ingredient.objects.get(name='Coffee Beans')
         coffeeBeans.amountPurchased = 20
         coffeeBeans.save()
@@ -95,9 +91,6 @@ class PlaceOrderTests(TestCase):
     
     
     def testAddOns(self):
-        self.user.account.credit += Money(1000, 'USD')
-        self.user.account.save()
-
         coffeeBeans = Ingredient.objects.get(name='Coffee Beans')
         coffeeBeans.amountPurchased = 20
         coffeeBeans.save()
@@ -120,9 +113,6 @@ class PlaceOrderTests(TestCase):
     
 
     def testComplexOrder(self):
-        self.user.account.credit += Money(1000, 'USD')
-        self.user.account.save()
-
         ingredients = Ingredient.objects.all()
         for ingredient in ingredients:
             ingredient.amountPurchased = 50
