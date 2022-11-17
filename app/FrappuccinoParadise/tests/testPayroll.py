@@ -2,8 +2,6 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from djmoney.money import Money
-from FrappuccinoParadise.models import Drink, Order, Ingredient, OrderItem, Account, TimeCard
-import json
 
 
 # Create your tests here.
@@ -43,7 +41,6 @@ class PayrollTest(TestCase):
         self.assertEqual(barista.account.credit.amount, 0)
 
         response = self.client.post('/app/api/pay/')
-        print(response.content)
         self.assertEqual(response.status_code, 200)
 
         barista = get_user_model().objects.get(username='barista1')
