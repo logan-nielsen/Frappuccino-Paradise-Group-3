@@ -327,7 +327,7 @@ def pay(request):
                     shift.save()
                     response['paid'].append(shift.id)
                 else:
-                    response['errors'].add("Insufficient funds")
+                    response['errors'].append("Insufficient funds")
                     response['unpaid'].append(shift.id)
             else:
                 response['errors'].add(f"TimeCard {shift.id} has already been paid")
