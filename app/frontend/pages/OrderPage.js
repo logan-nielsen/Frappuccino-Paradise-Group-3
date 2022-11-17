@@ -31,6 +31,10 @@ export default function OrderPage() {
         openSnackbar("Failed to retrieve menu", true);
       })
   }, [])
+
+  useEffect(() => {
+    console.log(order);
+  }, [order])
   
   function addDrinkOrder(drinkOrder) {
     setOrder([...order, drinkOrder])
