@@ -36,8 +36,9 @@ A sqlite database is used to store data.
 6. Set up the database: ```$ python manage.py migrate```
 7. Create an admin account: ```$ python manage.py createsuperuser```
 8. Migrate again: ```$ python manage.py migrate```
-9. Start webpack builds: ```$ npm run dev```
-10. In another terminal window, start the development server: ```$ python manage.py runserver```
+9. Install node modules: ```$ npm i```
+10. Start webpack builds: ```$ npm run dev```
+11. In another terminal window, start the development server: ```$ python manage.py runserver```
 
 ## Unit Testing Instructions
 All unit tests can be automatically run by executing the command ```$ python -Wa manage.py test```
